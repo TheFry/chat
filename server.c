@@ -104,6 +104,7 @@ void recvFromClient(int clientSocket)
 
 void addNewClient(int mainServerSocket)
 {
+
 	int newClientSocket = tcpAccept(mainServerSocket, DEBUG_FLAG);
 	
 	addToPollSet(newClientSocket);

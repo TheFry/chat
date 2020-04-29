@@ -21,25 +21,51 @@
 #include "pollLib.h"
 
 #define DEBUG_FLAG 1
-#
+
 void sendToServer(int socketNum);
 int getFromStdin(char * sendBuf, char * prompt);
-void checkArgs(int argc, char * argv[]);
+void parse_args(int argc, char * argv[]);
+void init_chat(int socket, char *handle);
+
 
 int main(int argc, char * argv[])
 {
 	int socketNum = 0;         //socket descriptor
 	
-	checkArgs(argc, argv);
+	/* Check handle length */
+	parse_args(argc, argv);
 
 	/* set up the TCP Client socket  */
-	socketNum = tcpClientSetup(argv[1], argv[2], DEBUG_FLAG);
-	
+	socketNum = tcpClientSetup(argv[2], argv[3], DEBUG_FLAG);
+	init_chat(socketNum, argv[1]);
 	sendToServer(socketNum);
 	
 	close(socketNum);
 	
 	return 0;
+}
+
+/* Send flag 1 and wait for response 
+ * Note that eop/EOP mean end of packet
+ */
+void init_chat(int socket, char *handle){
+	struct packet_header header;
+	uint8_t buff[MAX_PACKET];
+	uint8_t *eop = temp;
+	uint8_t handle_len = strlen(handle);
+
+	header.length = htons(HEADER_LEN 
+						 		 + sizeof(handle_len) 
+						 		 + handle_len);
+	header.flag = 1;
+	smemcpy(temp, &header, sizeof(header));
+	eop = put_handle(temp + sizeof(header), handle_len, handle);
+	addToPollSet(socket);
+	send(socket, )
+	if(pollCall(POLL_WAIT_FOREVER) < 0){
+		printf("Issue with client setup\n");
+		exit(-1);
+	}
 }
 
 void sendToServer(int socketNum)
@@ -67,6 +93,7 @@ void sendToServer(int socketNum)
 	}
 }
 
+
 int getFromStdin(char * sendBuf, char * prompt)
 {
 	// Gets input up to MAXBUF-1 (and then appends \0)
@@ -92,12 +119,20 @@ int getFromStdin(char * sendBuf, char * prompt)
 	return inputLen;
 }
 
-void checkArgs(int argc, char * argv[])
+
+void parse_args(int argc, char * argv[])
 {
 	/* check command line arguments  */
-	if (argc != 3)
+	if (argc != 4)
 	{
-		printf("usage: %s host-name port-number \n", argv[0]);
-		exit(1);
+		printf("usage: %s handle host-name port-number \n", argv[0]);
+		exit(-1);
 	}
+
+	/* Handle */
+	if(strlen(argv[1]) < 0){
+		printf("Handle must be <= 100 characters\n");
+		exit(-1);
+	}
+
 }

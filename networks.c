@@ -21,7 +21,7 @@
 #include "networks.h"
 #include "gethostbyname6.h"
 
-
+void *smemcpy(void *dest, const void *src, size_t n);
 // This function creates the server socket.  The function 
 // returns the server socket number and prints the port 
 // number to the screen.
@@ -140,38 +140,24 @@ int tcpClientSetup(char * serverName, char * port, int debugFlag)
 	return socket_num;
 }
 
-int selectCall(int socketNumber, int seconds, int microseconds, int timeIsNotNull)
-{
-	// Returns 1 if socket is ready, 0 if socket is not ready  
-	// Only works for one socket (would need to change for multiple sockets)
-	// set timeIsNotNull = TIME_IS_NOT_NULL when providing a time value
-	int numReady = 0;
-	fd_set fileDescriptorSet;  // the file descriptor set 
-	struct timeval timeout;
-	struct timeval * timeoutPtr;   // needed for the time = NULL case
-	
-	
-	// setup fileDescriptorSet (socket to select on)
-	  FD_ZERO(&fileDescriptorSet);
-	  FD_SET(socketNumber, &fileDescriptorSet);
-	
-	// Time can be NULL, 0 or a seconds/microseconds 
-	if (timeIsNotNull == TIME_IS_NOT_NULL)
-	{
-		timeout.tv_sec = seconds;  
-		timeout.tv_usec = microseconds; 
-		timeoutPtr = &timeout;
-    } else
-    {
-		timeoutPtr = NULL;  // time is null so block forever - until input
-    }
 
-	if ((numReady = select(socketNumber + 1, &fileDescriptorSet, NULL, NULL, timeoutPtr)) < 0)
-	{
-		perror("select");
+/* Give a starting pointer, attatch the length and data 
+ * Return new end of the buffer */
+void *put_handle(void *start, uint8_t len, char *handle){
+	char testbuff[100];
+	uint8_t testlen = 0;
+	smemcpy(start, &len, sizeof(len));
+	smemcpy(start + sizeof(len), handle, strlen(handle));
+	return (start + sizeof(len) + strlen(handle));
+}
+
+
+void *smemcpy(void *dest, const void *src, size_t n){
+	void *ret = NULL;
+	ret = memcpy(dest, src, n);
+	if(ret == NULL){
+		perror("memcpy");
 		exit(-1);
-    }
-  
-	// Will be either 0 (socket not ready) or 1 (socket is ready for read)
-    return numReady;
+	}
+	return ret;
 }
