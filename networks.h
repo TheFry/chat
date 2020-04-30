@@ -1,4 +1,5 @@
-
+#include <stdint.h>
+#include <stddef.h>
 //
 // Written Hugh Smith, Updated: April 2020
 // Use at your own risk.  Feel free to copy, just leave my name in it.

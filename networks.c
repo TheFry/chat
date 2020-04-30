@@ -18,6 +18,7 @@
 #include <netdb.h>
 #include <poll.h>
 
+#include "safemem.h"
 #include "networks.h"
 #include "gethostbyname6.h"
 
@@ -152,12 +153,3 @@ void *put_handle(void *start, uint8_t len, char *handle){
 }
 
 
-void *smemcpy(void *dest, const void *src, size_t n){
-	void *ret = NULL;
-	ret = memcpy(dest, src, n);
-	if(ret == NULL){
-		perror("memcpy");
-		exit(-1);
-	}
-	return ret;
-}

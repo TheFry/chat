@@ -1,3 +1,4 @@
+
 // 
 // Writen by Hugh Smith, April 2020
 //
@@ -5,7 +6,6 @@
 // adding a file descriptor to the set, removing one and calling poll.
 // Feel free to copy, just leave my name in it, use at your own risk.
 //
-
 
 #ifndef __POLLLIB_H__
 #define __POLLLIB_H__

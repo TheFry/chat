@@ -19,6 +19,7 @@
 
 #include "networks.h"
 #include "pollLib.h"
+#include "safemem.h"
 
 #define DEBUG_FLAG 1
 
@@ -51,17 +52,16 @@ int main(int argc, char * argv[])
 void init_chat(int socket, char *handle){
 	struct packet_header header;
 	uint8_t buff[MAX_PACKET];
-	uint8_t *eop = temp;
+	uint8_t *eop = buff;
 	uint8_t handle_len = strlen(handle);
 
 	header.length = htons(HEADER_LEN 
 						 		 + sizeof(handle_len) 
 						 		 + handle_len);
 	header.flag = 1;
-	smemcpy(temp, &header, sizeof(header));
-	eop = put_handle(temp + sizeof(header), handle_len, handle);
+	smemcpy(buff, &header, sizeof(header));
+	eop = put_handle(buff + sizeof(header), handle_len, handle);
 	addToPollSet(socket);
-	send(socket, )
 	if(pollCall(POLL_WAIT_FOREVER) < 0){
 		printf("Issue with client setup\n");
 		exit(-1);
