@@ -1,28 +1,23 @@
-# Makefile for CPE464 tcp test code
-# written by Hugh Smith - April 2019
-
 CC= gcc
 CFLAGS= -g -Wall
-LIBS = 
 
+all: cclient
 
-all:   myClient myServer
+cclient: safemem networks pollLib gethost
+	$(CC) $(CFLAGS) -o cclient cclient.c safemem.o networks.o pollLib.o gethostbyname6.o
 
-myClient: myClient.c networks.o pollLib.o gethostbyname6.o *.h
-	$(CC) $(CFLAGS) -o myClient myClient.c networks.o pollLib.o gethostbyname6.o $(LIBS)
+safemem:
+	$(CC) $(CFLAGS) -c safemem.c
 
-myServer: myServer.c networks.o pollLib.o gethostbyname6.o *.h
-	$(CC) $(CFLAGS) -o myServer myServer.c networks.o pollLib.o gethostbyname6.o $(LIBS)
+networks:
+	$(CC) $(CFLAGS) -c networks.c
 
-.c.o:
-	gcc -c $(CFLAGS) $< -o $@ $(LIBS)
+pollLib:
+	$(CC) $(CFLAGS) -c pollLib.c
 
-cleano:
-	rm -f *.o
+gethost:
+	$(CC) $(CFLAGS) -c gethostbyname6.c
+
 
 clean:
-	rm -f myServer myClient *.o
-
-
-
-
+	rm -f server cclient *.o *.gch
