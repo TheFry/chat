@@ -5,4 +5,5 @@ void *smalloc(size_t size);
 void *smemset(void *s, int c, size_t n);
 void *srealloc(void *ptr, size_t size);
 void * sCalloc(size_t nmemb, size_t size);
+void sstrcpy(char *dest, const char *src);
 #endif

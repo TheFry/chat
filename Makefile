@@ -21,10 +21,10 @@ pollLib:
 gethost:
 	$(CC) $(CFLAGS) -c gethostbyname6.c
 
-table: safemem
+table:
 	$(CC) $(CFLAGS) -c table.c
 
-table_test: table 
+test_table: table safemem
 	$(CC) $(CFLAGS) -o test test_table.c table.o safemem.o
 
 

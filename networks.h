@@ -14,7 +14,7 @@
 #define TIME_IS_NULL 1
 #define TIME_IS_NOT_NULL 2
 #define HEADER_LEN sizeof(struct packet_header)
-
+#define TEST size_t size
 
 struct packet_header{
    uint16_t length;

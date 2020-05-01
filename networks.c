@@ -22,7 +22,6 @@
 #include "networks.h"
 #include "gethostbyname6.h"
 
-void *smemcpy(void *dest, const void *src, size_t n);
 // This function creates the server socket.  The function 
 // returns the server socket number and prints the port 
 // number to the screen.
