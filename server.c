@@ -20,6 +20,7 @@
 
 #include "networks.h"
 #include "pollLib.h"
+#include "table.h"
 
 #define DEBUG_FLAG 1
 

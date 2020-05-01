@@ -18,8 +18,4 @@ void addToPollSet(int socketNumber);
 void removeFromPollSet(int socketNumber);
 int pollCall(int timeInMilliSeconds);
 
-void * srealloc(void *ptr, size_t size);
-void * sCalloc(size_t nmemb, size_t size);
-
-
 #endif

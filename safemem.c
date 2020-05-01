@@ -1,3 +1,5 @@
+/* Wrapper that checks return values of standard memory libs **/
+
 #include <stdlib.h>
 #include <sys/types.h>
 #include <string.h>
@@ -38,4 +40,28 @@ void *smemset(void *s, int c, size_t n){
    }
 
    return ptr;
+}
+
+void *srealloc(void *ptr, size_t size){
+   void *new = NULL;
+   new = realloc(ptr, size);
+
+   if(new == NULL){
+      perror("realloc");
+      exit(-1);
+   }
+
+   return new;
+}
+
+/* Written by professor Smith */
+void * sCalloc(size_t nmemb, size_t size)
+{
+   void * returnValue = NULL;
+   if ((returnValue = calloc(nmemb, size)) == NULL)
+   {
+      perror("calloc");
+      exit(-1);
+   }
+   return returnValue;
 }

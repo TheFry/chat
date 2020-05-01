@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "pollLib.h"
+#include "safemem.h"
 
 
 // Poll global variables 
@@ -115,27 +116,5 @@ static void growPollSet(int newSetSize)
 	currentPollSetSize = newSetSize;
 }
 
-void * srealloc(void *ptr, size_t size)
-{
-	void * returnValue = NULL;
-	
-	if ((returnValue = realloc(ptr, size)) == NULL)
-	{
-		printf("Error on realloc (tried for size: %d\n", (int) size);
-		exit(-1);
-	}
-	
-	return returnValue;
-} 
 
-void * sCalloc(size_t nmemb, size_t size)
-{
-	void * returnValue = NULL;
-	if ((returnValue = calloc(nmemb, size)) == NULL)
-	{
-		perror("calloc");
-		exit(-1);
-	}
-	return returnValue;
-}
 
