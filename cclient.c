@@ -17,17 +17,17 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-#include "networks.h"
 #include "pollLib.h"
 #include "safemem.h"
+#include "networks.h"
+#include "packet.h"
 
 #define DEBUG_FLAG 1
 
-void sendToServer(int socketNum);
+void sendToServer(int socketNum, uint8_t *buff, uint16_t sendLen);
 int getFromStdin(char * sendBuf, char * prompt);
 void parse_args(int argc, char * argv[]);
 void init_chat(int socket, char *handle);
-
 
 int main(int argc, char * argv[])
 {
@@ -39,58 +39,57 @@ int main(int argc, char * argv[])
 	/* set up the TCP Client socket  */
 	socketNum = tcpClientSetup(argv[2], argv[3], DEBUG_FLAG);
 	init_chat(socketNum, argv[1]);
+	/*
 	sendToServer(socketNum);
 	
 	close(socketNum);
+	*/
 	
 	return 0;
 }
 
-/* Send flag 1 and wait for response 
+/* Send flag 1 and wait for response from accept()
  * Note that eop/EOP mean end of packet
  */
 void init_chat(int socket, char *handle){
 	struct packet_header header;
 	uint8_t buff[MAX_PACKET];
-	uint8_t *eop = buff;
-	uint8_t handle_len = strlen(handle);
+	uint16_t handle_len = (uint16_t)strlen(handle);
 
-	header.length = htons(HEADER_LEN 
-						 		 + sizeof(handle_len) 
-						 		 + handle_len);
-	header.flag = 1;
-	smemcpy(buff, &header, sizeof(header));
-	eop = put_handle(buff + sizeof(header), handle_len, handle);
-	addToPollSet(socket);
-	if(pollCall(POLL_WAIT_FOREVER) < 0){
-		printf("Issue with client setup\n");
+	setupPollSet();
+	if(handle_len > MAX_HANDLE){
+		fprintf(stderr, "Handle too long\n");
 		exit(-1);
 	}
+
+	/* Header len + 1 byte handle len + handle len */
+	header.length = htons(HEADER_LEN 
+						 + sizeof(uint8_t) 
+						 + handle_len);
+
+	header.flag = 1;
+	smemcpy(buff, &header, sizeof(header));
+	put_handle(buff + sizeof(header), handle);
+	print_buff(buff, ntohs(header.length));
+	printf("\n");
+	sendToServer(socket, buff, ntohs(header.length));
 }
 
-void sendToServer(int socketNum)
+
+void sendToServer(int socketNum, uint8_t *sendBuf, uint16_t sendLen)
 {
-	char sendBuf[MAXBUF];   //data buffer
-	int sendLen = 0;        //amount of data to send
-	int sent = 0;            //actual amount of data sent/* get the data and send it   */
-			
-	memset(sendBuf, 0, MAXBUF);
-	while (strcmp(sendBuf, "exit"))
+	uint16_t sent = 0;           //actual amount of data sent */
+
+	//sendLen = getFromStdin(sendBuf, "Enter data:");
+	//printf("read: %s string len: %d (including null)\n", sendBuf, sendLen);	
+	sent =  (uint16_t)send(socketNum, sendBuf, sendLen, 0);
+	if (sent != sendLen)
 	{
-
-		sendLen = getFromStdin(sendBuf, "Enter data:");
-		
-		//printf("read: %s string len: %d (including null)\n", sendBuf, sendLen);
-			
-		sent =  send(socketNum, sendBuf, sendLen, 0);
-		if (sent < 0)
-		{
-			perror("send call");
-			exit(-1);
-		}
-
-		printf("Amount of data sent is: %d\n", sent);
+		perror("send call");
+		exit(-1);
 	}
+	printf("Sent: %u\n", sent);
+
 }
 
 
@@ -130,7 +129,7 @@ void parse_args(int argc, char * argv[])
 	}
 
 	/* Handle */
-	if(strlen(argv[1]) < 0){
+	if(strlen(argv[1]) > MAX_HANDLE){
 		printf("Handle must be <= 100 characters\n");
 		exit(-1);
 	}

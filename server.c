@@ -21,6 +21,7 @@
 #include "networks.h"
 #include "pollLib.h"
 #include "table.h"
+#include "packet.h"
 
 #define DEBUG_FLAG 1
 
@@ -82,9 +83,10 @@ void processSockets(int mainServerSocket)
 
 void recvFromClient(int clientSocket)
 {
-	char buf[MAXBUF];
+	uint8_t buf[MAXBUF];
 	int messageLen = 0;
-		
+	
+	printf("Recv data\n");
 	//now get the data from the clientSocket (message includes null)
 	if ((messageLen = recv(clientSocket, buf, MAXBUF, 0)) < 0)
 	{
@@ -99,9 +101,10 @@ void recvFromClient(int clientSocket)
 	}
 	else
 	{
-		printf("Message received socket: %d, length: %d Data: %s\n", clientSocket, messageLen, buf);
+		parse_packet(buf);
 	}
 }
+
 
 void addNewClient(int mainServerSocket)
 {

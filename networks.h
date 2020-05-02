@@ -31,8 +31,6 @@ int tcpClientSetup(char * serverName, char * port, int debugFlag);
 
 int selectCall(int socketNumber, int seconds, int microseconds, int timeIsNotNull);
 
-void *smemcpy(void *start, const void *src, size_t n);
-void *put_handle(void *start, uint8_t len, char *handle);
-
+void *put_handle(void *start, char *handle);
 
 #endif

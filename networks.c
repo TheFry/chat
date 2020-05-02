@@ -72,7 +72,6 @@ int tcpServerSetup(int portNumber)
 
 // This function waits for a client to ask for services.  It returns
 // the client socket number.   
-
 int tcpAccept(int server_socket, int debugFlag)
 {
 	struct sockaddr_in6 clientInfo;   
@@ -97,9 +96,8 @@ int tcpAccept(int server_socket, int debugFlag)
 
 int tcpClientSetup(char * serverName, char * port, int debugFlag)
 {
-	// This is used by the client to connect to a server using TCP
-	
-	int socket_num;
+	// This is used by the client to connect to a server using TCP	
+	int socket_num = -1;
 	uint8_t * ipAddress = NULL;
 	struct sockaddr_in6 server;      
 	
@@ -141,14 +139,13 @@ int tcpClientSetup(char * serverName, char * port, int debugFlag)
 }
 
 
-/* Give a starting pointer, attatch the length and data 
- * Return new end of the buffer */
-void *put_handle(void *start, uint8_t len, char *handle){
-	char testbuff[100];
-	uint8_t testlen = 0;
+/* Give a starting pointer, calculate handle len
+ * Copy handle len followed by the actual handle
+ * Exclude Null terminator if it exists (strlen does this)
+ */
+void *put_handle(void *start, char *handle){
+	uint8_t len = strlen(handle);
 	smemcpy(start, &len, sizeof(len));
 	smemcpy(start + sizeof(len), handle, strlen(handle));
 	return (start + sizeof(len) + strlen(handle));
 }
-
-
