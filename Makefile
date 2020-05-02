@@ -29,4 +29,7 @@ test_table: table.o safemem.o
 
 
 clean:
+	rm -f server cclient test_table
+
+clean-hard: 
 	rm -f server cclient test_table *.o *.gch
