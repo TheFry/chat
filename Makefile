@@ -3,30 +3,30 @@ CFLAGS= -g -Wall
 
 all: cclient server
 
-cclient: safemem networks pollLib gethost table
+cclient: safemem.o networks.o pollLib.o gethostbyname6.o table.o
 	$(CC) $(CFLAGS) -o cclient cclient.c safemem.o networks.o pollLib.o gethostbyname6.o
 
-server: safemem networks pollLib gethost table
+server: safemem.o networks.o pollLib.o gethostbyname6.o table.o
 	$(CC) $(CFLAGS) -o server server.c safemem.o networks.o pollLib.o gethostbyname6.o table.o
 
-safemem:
-	$(CC) $(CFLAGS) -c safemem.c
+safemem.o:
+	$(CC) $(CFLAGS) -c safemem.c -o safemem.o
 
-networks: safemem
-	$(CC) $(CFLAGS) -c networks.c
+networks.o: safemem.o
+	$(CC) $(CFLAGS) -c networks.c -o networks.o
 
-pollLib:
+pollLib.o:
 	$(CC) $(CFLAGS) -c pollLib.c
 
-gethost:
+gethostbyname6.o:
 	$(CC) $(CFLAGS) -c gethostbyname6.c
 
-table:
+table.o:
 	$(CC) $(CFLAGS) -c table.c
 
-test_table: table safemem
-	$(CC) $(CFLAGS) -o test test_table.c table.o safemem.o
+test_table: table.o safemem.o
+	$(CC) $(CFLAGS) -o test_table test_table.c table.o safemem.o
 
 
 clean:
-	rm -f server cclient *.o *.gch test
+	rm -f server cclient test_table *.o *.gch
