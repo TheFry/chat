@@ -29,8 +29,7 @@ int getFromStdin(char * sendBuf, char * prompt);
 void parse_args(int argc, char * argv[]);
 void init_chat(int socket, char *handle);
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char * argv[]){
 	int socketNum = 0;         //socket descriptor
 	
 	/* Check handle length */
@@ -76,15 +75,13 @@ void init_chat(int socket, char *handle){
 }
 
 
-void sendToServer(int socketNum, uint8_t *sendBuf, uint16_t sendLen)
-{
+void sendToServer(int socketNum, uint8_t *sendBuf, uint16_t sendLen){
 	uint16_t sent = 0;           //actual amount of data sent */
 
 	//sendLen = getFromStdin(sendBuf, "Enter data:");
 	//printf("read: %s string len: %d (including null)\n", sendBuf, sendLen);	
 	sent =  (uint16_t)send(socketNum, sendBuf, sendLen, 0);
-	if (sent != sendLen)
-	{
+	if (sent != sendLen){
 		perror("send call");
 		exit(-1);
 	}
@@ -105,8 +102,7 @@ int getFromStdin(char * sendBuf, char * prompt)
 	while (inputLen < (MAXBUF - 1) && aChar != '\n')
 	{
 		aChar = getchar();
-		if (aChar != '\n')
-		{
+		if (aChar != '\n'){
 			sendBuf[inputLen] = aChar;
 			inputLen++;
 		}
@@ -122,8 +118,7 @@ int getFromStdin(char * sendBuf, char * prompt)
 void parse_args(int argc, char * argv[])
 {
 	/* check command line arguments  */
-	if (argc != 4)
-	{
+	if (argc != 4){
 		printf("usage: %s handle host-name port-number \n", argv[0]);
 		exit(-1);
 	}
