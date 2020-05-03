@@ -54,14 +54,6 @@ void *srealloc(void *ptr, size_t size){
    return new;
 }
 
-void sstrcpy(char *dest, const char *src){
-   void *ptr = NULL;
-   ptr = strcpy(dest, src);
-   if(ptr == NULL){
-      perror("strcpy");
-      exit(-1);
-   }
-}
 
 /* Written by professor Smith */
 void * sCalloc(size_t nmemb, size_t size)
@@ -73,4 +65,24 @@ void * sCalloc(size_t nmemb, size_t size)
       exit(-1);
    }
    return returnValue;
+}
+
+
+void sstrcpy(char *dest, const char *src){
+   void *ptr = NULL;
+   ptr = strcpy(dest, src);
+   if(ptr == NULL){
+      perror("strcpy");
+      exit(-1);
+   }
+}
+
+void sstrlen(char *str){
+   size_t len;
+   len = strlen(str);
+
+   if(len < 0){
+      perror("strlen");
+      exit(-1);
+   }
 }
