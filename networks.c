@@ -137,15 +137,3 @@ int tcpClientSetup(char * serverName, char * port, int debugFlag)
 	
 	return socket_num;
 }
-
-
-/* Give a starting pointer, calculate handle len
- * Copy handle len followed by the actual handle
- * Exclude Null terminator if it exists (strlen does this)
- */
-void *put_handle(void *start, char *handle){
-	uint8_t len = strlen(handle);
-	smemcpy(start, &len, sizeof(len));
-	smemcpy(start + sizeof(len), handle, strlen(handle));
-	return (start + sizeof(len) + strlen(handle));
-}

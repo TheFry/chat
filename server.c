@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
 	int portNumber = 0;
 	
 	setupPollSet();
+	init_table();
 	portNumber = checkArgs(argc, argv);
 	
 	//create the server socket
@@ -83,12 +84,12 @@ void processSockets(int mainServerSocket)
 
 void recvFromClient(int clientSocket)
 {
-	uint8_t buf[MAXBUF];
+	uint8_t buf[MAX_PACKET];
 	int messageLen = 0;
 	
 	printf("Recv data\n");
 	//now get the data from the clientSocket (message includes null)
-	if ((messageLen = recv(clientSocket, buf, MAXBUF, 0)) < 0)
+	if ((messageLen = recv(clientSocket, buf, MAX_PACKET, 0)) < 0)
 	{
 		perror("recv call");
 		exit(-1);
@@ -101,7 +102,7 @@ void recvFromClient(int clientSocket)
 	}
 	else
 	{
-		parse_packet(buf);
+		server_parse_packet(buf);
 	}
 }
 

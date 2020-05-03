@@ -30,7 +30,4 @@ int tcpAccept(int server_socket, int debugFlag);
 int tcpClientSetup(char * serverName, char * port, int debugFlag);
 
 int selectCall(int socketNumber, int seconds, int microseconds, int timeIsNotNull);
-
-void *put_handle(void *start, char *handle);
-
 #endif

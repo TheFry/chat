@@ -38,6 +38,7 @@ int main(int argc, char * argv[])
 
 	/* set up the TCP Client socket  */
 	socketNum = tcpClientSetup(argv[2], argv[3], DEBUG_FLAG);
+	setupPollSet();
 	init_chat(socketNum, argv[1]);
 	/*
 	sendToServer(socketNum);
@@ -52,27 +53,13 @@ int main(int argc, char * argv[])
  * Note that eop/EOP mean end of packet
  */
 void init_chat(int socket, char *handle){
-	struct packet_header header;
+	uint16_t packet_len;
 	uint8_t buff[MAX_PACKET];
-	uint16_t handle_len = (uint16_t)strlen(handle);
-
-	setupPollSet();
-	if(handle_len > MAX_HANDLE){
-		fprintf(stderr, "Handle too long\n");
-		exit(-1);
-	}
-
-	/* Header len + 1 byte handle len + handle len */
-	header.length = htons(HEADER_LEN 
-						 + sizeof(uint8_t) 
-						 + handle_len);
-
-	header.flag = 1;
-	smemcpy(buff, &header, sizeof(header));
-	put_handle(buff + sizeof(header), handle);
-	print_buff(buff, ntohs(header.length));
-	printf("\n");
-	sendToServer(socket, buff, ntohs(header.length));
+	
+	packet_len = build_flag1(buff, handle);
+	print_buff(buff, packet_len);
+	/* Header len + 1 byte ndle len + handle len */
+	sendToServer(socket, buff, packet_len);
 }
 
 
