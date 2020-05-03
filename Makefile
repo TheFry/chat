@@ -3,11 +3,11 @@ CFLAGS= -g -Wall
 
 all: cclient server
 
-cclient: safemem.o networks.o pollLib.o gethostbyname6.o table.o packet.o
-	$(CC) $(CFLAGS) -o cclient cclient.c safemem.o networks.o pollLib.o gethostbyname6.o packet.o
+cclient: safemem.o networks.o pollLib.o gethostbyname6.o table.o packet.o cclient.o
+	$(CC) $(CFLAGS) -o cclient cclient.o safemem.o networks.o pollLib.o gethostbyname6.o table.o packet.o
 
-server: safemem.o networks.o pollLib.o gethostbyname6.o table.o packet.o
-	$(CC) $(CFLAGS) -o server server.c safemem.o networks.o pollLib.o gethostbyname6.o table.o packet.o
+server: safemem.o networks.o pollLib.o gethostbyname6.o table.o packet.o server.o
+	$(CC) $(CFLAGS) -o server server.o safemem.o networks.o pollLib.o gethostbyname6.o table.o packet.o
 
 safemem.o:
 	$(CC) $(CFLAGS) -c safemem.c -o safemem.o
@@ -24,7 +24,7 @@ gethostbyname6.o:
 table.o: networks.o
 	$(CC) $(CFLAGS) -c table.c -o table.o
 
-packet.o:
+packet.o: 
 	$(CC) $(CFLAGS) -c packet.c -o packet.o
 
 test_table: table.o safemem.o

@@ -55,11 +55,24 @@ int main(int argc, char * argv[])
 void init_chat(int socket, char *handle){
 	uint16_t packet_len;
 	uint8_t buff[MAX_PACKET];
-	
+	int socketToProcess;
+	int errval;
+
 	packet_len = build_flag1(buff, handle);
-	print_buff(buff, packet_len);
-	/* Header len + 1 byte ndle len + handle len */
+	
+	addToPollSet(socket);
 	sendToServer(socket, buff, packet_len);
+	while(1){
+		if ((socketToProcess = pollCall(POLL_WAIT_FOREVER)) != -1){
+			if(socketToProcess == socket){
+				errval = recvPacket(socket, CLIENT, buff);
+				break;
+			}
+		}
+	}
+	if(errval > 0){
+		print_buff(buff, errval);
+	}
 }
 
 

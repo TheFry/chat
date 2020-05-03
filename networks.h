@@ -15,6 +15,8 @@
 #define TIME_IS_NOT_NULL 2
 #define HEADER_LEN sizeof(struct packet_header)
 #define TEST size_t size
+#define CLIENT 0
+#define SERVER 1
 
 struct packet_header{
    uint16_t length;
@@ -28,6 +30,10 @@ int tcpAccept(int server_socket, int debugFlag);
 
 // for the client side
 int tcpClientSetup(char * serverName, char * port, int debugFlag);
-
 int selectCall(int socketNumber, int seconds, int microseconds, int timeIsNotNull);
+
+// shared
+void sendPacket(int socketNum, uint8_t *sendBuf, uint16_t sendLen);
+int recvPacket(int clientSocket, int process_type, uint8_t *buff);
+
 #endif

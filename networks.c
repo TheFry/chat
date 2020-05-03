@@ -19,8 +19,9 @@
 #include <poll.h>
 
 #include "safemem.h"
-#include "networks.h"
 #include "gethostbyname6.h"
+#include "packet.h"
+#include "networks.h"
 
 // This function creates the server socket.  The function 
 // returns the server socket number and prints the port 
@@ -136,4 +137,53 @@ int tcpClientSetup(char * serverName, char * port, int debugFlag)
 	}
 	
 	return socket_num;
+}
+
+
+void sendPacket(int socketNum, uint8_t *sendBuf, uint16_t sendLen)
+{
+	uint16_t sent = 0;           //actual amount of data sent */
+
+	//sendLen = getFromStdin(sendBuf, "Enter data:");
+	//printf("read: %s string len: %d (including null)\n", sendBuf, sendLen);	
+	sent =  (uint16_t)send(socketNum, sendBuf, sendLen, 0);
+	if (sent != sendLen)
+	{
+		perror("send call");
+		exit(-1);
+	}
+	printf("Sent: %u\n", sent);
+}
+
+
+int recvPacket(int clientSocket, int process_type, uint8_t *return_buff)
+{
+	uint8_t buf[MAX_PACKET];
+	int messageLen = 0;
+	
+	smemset(buf, '0', MAX_PACKET);
+	smemset(return_buff, '0', MAX_PACKET);
+
+	printf("Recv data\n");
+	//now get the data from the clientSocket (message includes null)
+	if ((messageLen = recv(clientSocket, buf, MAX_PACKET, 0)) < 0)
+	{
+		perror("recv call");
+		exit(-1);
+	}
+	
+	if (messageLen == 0)
+	{
+		// recv() 0 bytes so client is gone
+		if(process_type == SERVER){
+			return(0);
+
+		}else{
+			printf("Server sent 0 bytes, exiting\n");
+			exit(-1);
+		}
+
+	}
+	smemcpy(return_buff, buf, messageLen);
+	return(messageLen);
 }

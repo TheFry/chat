@@ -5,16 +5,15 @@
 #include <arpa/inet.h>
 #include "safemem.h"
 #include "networks.h"
+#include "table.h"
 #include "packet.h"
 
-void server_parse_packet(uint8_t *buff){
-   uint8_t flag;
-   
-   flag = get_type(buff);
+void server_parse_packet(uint8_t *buff, int socket){
+   uint8_t flag = get_type(buff);
 
    switch(flag){
       case 1:
-         parse_flag1(buff);
+         parse_flag1(buff, socket);
          break;
       default:
          printf("Not defined\n");
@@ -22,24 +21,36 @@ void server_parse_packet(uint8_t *buff){
    }
 }
 
+
 uint8_t get_type(uint8_t *buff){
    struct packet_header *header;
 
    header = (struct packet_header *)buff;
-   printf("Type: %u\n", header->flag);
    return(header->flag);
 }
 
 
-void parse_flag1(uint8_t *buff){
-   //char handle[MAX_HANDLE];
+/* Try to add handle to table.
+ * Respond with flag 2 on success
+ * Respond with flag 3 on error (handle exists)
+ */
+void parse_flag1(uint8_t *buff, int socket){
+   char handle[MAX_HANDLE];
    struct packet_header *header;
-   uint16_t packet_len;
-   //uint8_t handle_len;
+   struct packet_header response;
 
-   header = (struct packet_header *)buff;
-   packet_len = ntohs(header->length);
-   print_buff(buff, packet_len);
+   memset(handle, '0', MAX_HANDLE);
+   get_handle(buff + HEADER_LEN, handle);
+
+   if(add_entry(handle, socket)){
+      /* Flag 3 is negative response*/
+      response = build_header(3);
+   }else{
+      /* Flag 2 is positive response */
+      response = build_header(2);
+   }
+
+   sendPacket(socket, (uint8_t *)&response, HEADER_LEN);
 }
 
 
@@ -58,6 +69,14 @@ uint16_t build_flag1(uint8_t *buff, char *handle){
    header->flag = 1;
    put_handle(buff + HEADER_LEN, handle);
    return(ntohs(header->length));
+}
+
+
+struct packet_header build_header(uint8_t flag){
+   struct packet_header header;
+   header.flag = flag;
+   header.length = htons(HEADER_LEN);
+   return header;
 }
 
 

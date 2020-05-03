@@ -23,6 +23,7 @@
 #include "table.h"
 #include "packet.h"
 
+
 #define DEBUG_FLAG 1
 
 void processSockets(int mainServerSocket);
@@ -56,7 +57,8 @@ int main(int argc, char *argv[])
 void processSockets(int mainServerSocket)
 {
 	int socketToProcess = 0;
-	
+	int errval;
+	uint8_t buff[MAX_PACKET];
 	addToPollSet(mainServerSocket);
 		
 	while (1)
@@ -69,7 +71,13 @@ void processSockets(int mainServerSocket)
 			}
 			else
 			{
-				recvFromClient(socketToProcess);
+				errval = recvPacket(socketToProcess, SERVER, buff);
+				if(!errval){
+					removeClient(socketToProcess);
+				}else{
+					server_parse_packet(buff, socketToProcess);
+				}
+
 			}
 		}
 		else
@@ -82,38 +90,11 @@ void processSockets(int mainServerSocket)
 }
 
 
-void recvFromClient(int clientSocket)
-{
-	uint8_t buf[MAX_PACKET];
-	int messageLen = 0;
-	
-	printf("Recv data\n");
-	//now get the data from the clientSocket (message includes null)
-	if ((messageLen = recv(clientSocket, buf, MAX_PACKET, 0)) < 0)
-	{
-		perror("recv call");
-		exit(-1);
-	}
-	
-	if (messageLen == 0)
-	{
-		// recv() 0 bytes so client is gone
-		removeClient(clientSocket);
-	}
-	else
-	{
-		server_parse_packet(buf);
-	}
-}
-
-
 void addNewClient(int mainServerSocket)
 {
 
 	int newClientSocket = tcpAccept(mainServerSocket, DEBUG_FLAG);
-	
 	addToPollSet(newClientSocket);
-	
 }
 
 void removeClient(int clientSocket)
