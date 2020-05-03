@@ -23,11 +23,13 @@
 #include "packet.h"
 
 #define DEBUG_FLAG 1
+#define PROMPT "$"
 
 void sendToServer(int socketNum, uint8_t *buff, uint16_t sendLen);
-int getFromStdin(char * sendBuf, char * prompt);
+int getFromStdin(char *sendBuf, char * prompt);
 void parse_args(int argc, char * argv[]);
 void init_chat(int socket, char *handle);
+void chatting(int socket, char *handle);
 
 int main(int argc, char * argv[]){
 	int socketNum = 0;         //socket descriptor
@@ -39,11 +41,7 @@ int main(int argc, char * argv[]){
 	socketNum = tcpClientSetup(argv[2], argv[3], DEBUG_FLAG);
 	setupPollSet();
 	init_chat(socketNum, argv[1]);
-	/*
-	sendToServer(socketNum);
-	
-	close(socketNum);
-	*/
+	chatting(socketNum, argv[1]);
 	
 	return 0;
 }
@@ -55,42 +53,64 @@ void init_chat(int socket, char *handle){
 	uint16_t packet_len;
 	uint8_t buff[MAX_PACKET];
 	int socketToProcess;
-	int errval;
+	int len;
 
 	packet_len = build_flag1(buff, handle);
 	
 	addToPollSet(socket);
-	sendToServer(socket, buff, packet_len);
+	sendPacket(socket, buff, packet_len);
 	while(1){
+		/* Wait for server to respond */
 		if ((socketToProcess = pollCall(POLL_WAIT_FOREVER)) != -1){
+
 			if(socketToProcess == socket){
-				errval = recvPacket(socket, CLIENT, buff);
+				len = recvPacket(socket, CLIENT, buff);
 				break;
 			}
 		}
 	}
-	if(errval > 0){
-		print_buff(buff, errval);
-	}
-}
-
-
-void sendToServer(int socketNum, uint8_t *sendBuf, uint16_t sendLen){
-	uint16_t sent = 0;           //actual amount of data sent */
-
-	//sendLen = getFromStdin(sendBuf, "Enter data:");
-	//printf("read: %s string len: %d (including null)\n", sendBuf, sendLen);	
-	sent =  (uint16_t)send(socketNum, sendBuf, sendLen, 0);
-	if (sent != sendLen){
-		perror("send call");
+	if(len > 0){
+		client_parse_packet(buff, socketToProcess);
+		return;
+	}else if(len < 0){
+		fprintf(stderr, "Error with flag 1 response\n");
+		exit(-1);
+	}else{
+		fprintf(stderr, "Server disconnected\n");
 		exit(-1);
 	}
-	printf("Sent: %u\n", sent);
-
 }
 
 
-int getFromStdin(char * sendBuf, char * prompt)
+/* Loop until client sends exit */
+void chatting(int socket, char *handle){
+	char input[MAX_PACKET];
+	uint8_t packet[MAX_PACKET];
+	int incomming_socket;
+	
+
+	addToPollSet(STDIN_FILENO);
+	smemset(packet, '0', MAX_PACKET);
+	while(1){
+
+		/* Wait for server to respond */
+		if ((incomming_socket = pollCall(POLL_WAIT_FOREVER)) != -1){
+
+			/* Server socket */
+			if(incomming_socket == socket){
+				recvPacket(socket, CLIENT, packet);
+				break;
+
+			/* Stdin */
+			}else if(incomming_socket == STDIN_FILENO){
+				getFromStdin(input, PROMPT);
+			}
+		}
+	}
+}
+
+
+int getFromStdin(char *sendBuf, char * prompt)
 {
 	// Gets input up to MAXBUF-1 (and then appends \0)
 	// Returns length of string including null

@@ -3,6 +3,8 @@
 // Network code to support TCP client/server connections
 // Feel free to copy, just leave my name in it, use at your own risk.
 
+/* Modified by Luke Matusiak */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -152,7 +154,6 @@ void sendPacket(int socketNum, uint8_t *sendBuf, uint16_t sendLen)
 		perror("send call");
 		exit(-1);
 	}
-	printf("Sent: %u\n", sent);
 }
 
 
@@ -161,11 +162,11 @@ int recvPacket(int clientSocket, int process_type, uint8_t *return_buff)
 	uint8_t buf[MAX_PACKET];
 	int messageLen = 0;
 	
+	/* 0 out buffers */
 	smemset(buf, '0', MAX_PACKET);
 	smemset(return_buff, '0', MAX_PACKET);
-
-	printf("Recv data\n");
-	//now get the data from the clientSocket (message includes null)
+	
+	/* Get data */
 	if ((messageLen = recv(clientSocket, buf, MAX_PACKET, 0)) < 0)
 	{
 		perror("recv call");
@@ -174,16 +175,18 @@ int recvPacket(int clientSocket, int process_type, uint8_t *return_buff)
 	
 	if (messageLen == 0)
 	{
-		// recv() 0 bytes so client is gone
+		/* recv() 0 bytes so client is gone */
 		if(process_type == SERVER){
 			return(0);
 
+		/* Server is gone */
 		}else{
 			printf("Server sent 0 bytes, exiting\n");
 			exit(-1);
 		}
 
 	}
+	/* Copy data */
 	smemcpy(return_buff, buf, messageLen);
 	return(messageLen);
 }

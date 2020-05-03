@@ -22,6 +22,24 @@ void server_parse_packet(uint8_t *buff, int socket){
 }
 
 
+void client_parse_packet(uint8_t *buff, int socket){
+   uint8_t flag = get_type(buff);
+
+   switch(flag){
+      case 2:
+         printf("Client Connected\n");
+         break;
+      case 3:
+         fprintf(stderr, "Handle Taken!\n");
+         break;
+      default:
+         fprintf(stderr, "Not defined\n");
+         exit(-1);
+   }
+}
+
+
+
 uint8_t get_type(uint8_t *buff){
    struct packet_header *header;
 
@@ -36,11 +54,10 @@ uint8_t get_type(uint8_t *buff){
  */
 void parse_flag1(uint8_t *buff, int socket){
    char handle[MAX_HANDLE];
-   struct packet_header *header;
    struct packet_header response;
 
    memset(handle, '0', MAX_HANDLE);
-   get_handle(buff + HEADER_LEN, handle);
+   packet_get_handle(buff + HEADER_LEN, handle);
 
    if(add_entry(handle, socket)){
       /* Flag 3 is negative response*/
@@ -54,6 +71,7 @@ void parse_flag1(uint8_t *buff, int socket){
 }
 
 
+/* Used by client to create init packet */
 uint16_t build_flag1(uint8_t *buff, char *handle){
    uint8_t handle_len = strlen(handle);
    struct packet_header *header;
@@ -62,7 +80,10 @@ uint16_t build_flag1(uint8_t *buff, char *handle){
       fprintf(stderr, "Handle too long\n");
       exit(-1);
    }
+
+   /*Overlay a structure on the packet to add info */
    header = (struct packet_header *)buff;
+
    header->length = htons(HEADER_LEN 
                     + sizeof(uint8_t) 
                     + handle_len);
@@ -72,6 +93,9 @@ uint16_t build_flag1(uint8_t *buff, char *handle){
 }
 
 
+/* Builds basic packet header. This is useful
+ * for flags that only require the header
+ */
 struct packet_header build_header(uint8_t flag){
    struct packet_header header;
    header.flag = flag;
@@ -97,11 +121,12 @@ uint8_t *put_handle(uint8_t *buff, char *handle){
    return (buff + sizeof(len) + strlen(handle));
 }
 
+
 /* Gets length of handle from the buffer
  * Fills handle_buff with the handle name
  * Returns pointer to mem location just after the handle
  */
-uint8_t *get_handle(uint8_t *buff, char *handle_buff){
+uint8_t *packet_get_handle(uint8_t *buff, char *handle_buff){
    uint8_t len;
 
    /* Get handle len from buff */
@@ -116,6 +141,7 @@ uint8_t *get_handle(uint8_t *buff, char *handle_buff){
    /* Return memory location */
    return (buff + sizeof(len) + len);
 }
+
 
 void print_buff(uint8_t *buff, int len){
    int i;

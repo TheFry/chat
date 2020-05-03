@@ -56,25 +56,32 @@ int main(int argc, char *argv[]){
 
 void processSockets(int mainServerSocket){
 	int socketToProcess = 0;
-	int errval;
+	int len;
 	uint8_t buff[MAX_PACKET];
 	addToPollSet(mainServerSocket);
-		
+
+	/* Run until user inputs ^C */	
 	while (1){
 		if ((socketToProcess = pollCall(POLL_WAIT_FOREVER)) != -1){
+			
+			/* New client */
 			if (socketToProcess == mainServerSocket){
 				addNewClient(mainServerSocket);
-			}else{
-				errval = recvPacket(socketToProcess, SERVER, buff);
-				if(!errval){
-					removeClient(socketToProcess);
-				}else{
-					server_parse_packet(buff, socketToProcess);
-				}
-
+				continue;
 			}
-		}
-		else{
+			
+			/* Get client data */
+			len = recvPacket(socketToProcess, SERVER, buff);
+
+			/* Close connection if 0 */
+			if(!len){
+				removeClient(socketToProcess);
+				continue;
+			}
+			
+			/* Parse the packet */
+			server_parse_packet(buff, socketToProcess);	
+		}else{
 			// Just printing here to let me know what is going on
 			printf("Poll timed out waiting for client to send data\n");
 		}
@@ -84,16 +91,26 @@ void processSockets(int mainServerSocket){
 
 
 void addNewClient(int mainServerSocket){
-
 	int newClientSocket = tcpAccept(mainServerSocket, DEBUG_FLAG);
 	addToPollSet(newClientSocket);
 }
 
+
+/* Remove client from handle table and poll set */
 void removeClient(int clientSocket){
+	char handle[MAX_HANDLE];
+	
 	printf("Client on socket %d terminted\n", clientSocket);
+	
+	if((table_get_handle(clientSocket, handle))){
+		fprintf(stderr, "Error Remove: Handle not in table\n");
+	}
+
+	remove_entry(handle);
 	removeFromPollSet(clientSocket);
 	close(clientSocket);
 }
+
 
 int checkArgs(int argc, char *argv[]){
 	// Checks args and returns port number

@@ -137,6 +137,19 @@ int remove_entry(char *handle){
 }
 
 
+/* Use socket to get handle */
+int table_get_handle(int socket, char *handle){
+   int i;
+   for(i = 0; i < num_elements; i++){
+      if(table[i].socket == socket){
+         smemcpy(handle, table[i].handle, strlen(table[i].handle));
+         return(0);
+      }
+   }
+   return(-1);
+}
+
+
 void print_table(){
    int i;
    struct table_entry *entry;
