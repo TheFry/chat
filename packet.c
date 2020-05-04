@@ -27,7 +27,7 @@ void client_parse_packet(uint8_t *buff, int socket){
 
    switch(flag){
       case 2:
-         printf("Client Connected\n$");
+         printf("$");
          break;
       case 3:
          fprintf(stderr, "Handle Taken!\n");
@@ -43,7 +43,6 @@ void client_parse_packet(uint8_t *buff, int socket){
 uint8_t get_type(uint8_t *buff){
    struct packet_header *header;
    header = (struct packet_header *)buff;
-   print_buff(buff);
    return(header->flag);
 }
 

@@ -82,18 +82,16 @@ int add_entry(char *handle, int socket){
    int i;
    struct table_entry *entry;
    size_t new_mem;
-
-   printf("Handle to add %s\n", handle);
    
    /* Check if handle/socket already exists */
    for(i = 0; i < num_elements; i++){
       entry = &table[i];
       if(strcmp(handle, entry->handle) == 0){
-         fprintf(stderr, "Handle already in table\n");
+         fprintf(stderr, "Client %d: Handle already in table\n", socket);
          return -1;
       }
       if(socket == entry->socket){
-         fprintf(stderr, "Socket already in table\n");
+         fprintf(stderr, "Client %d: Socket already in table\n", socket);
          exit(-1);
       }
    }
@@ -132,11 +130,11 @@ int remove_entry(int socket){
    if(socket == -1){
       return 0;
    }
-   
+
    for(i = 0; i < num_elements; i++){
       entry = &table[i];
       if(entry->socket == socket){
-         printf("Removed Socket %d\n", entry->socket);
+         printf("Client %d: Removed from table\n", entry->socket);
          smemcpy(entry->handle, empty, sizeof(entry));
          entry->is_free = FREE;
          entry->socket = -1;

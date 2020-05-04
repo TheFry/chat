@@ -38,7 +38,7 @@ int main(int argc, char * argv[]){
 	parse_args(argc, argv);
 
 	/* set up the TCP Client socket  */
-	socketNum = tcpClientSetup(argv[2], argv[3], DEBUG_FLAG);
+	socketNum = tcpClientSetup(argv[2], argv[3], 0);
 	setupPollSet();
 	init_chat(socketNum, argv[1]);
 	chatting(socketNum, argv[1]);
