@@ -5,7 +5,7 @@ void server_parse_packet(uint8_t *buff, int socket);
 void client_parse_packet(uint8_t *buff, int socket);
 
 uint8_t get_type(uint8_t *packet);
-void print_buff(uint8_t *buff, int len);
+void print_buff(uint8_t *buff);
 struct packet_header build_header(uint8_t flag);
 
 void parse_flag1(uint8_t *buff, int socket);

@@ -42,8 +42,8 @@ void client_parse_packet(uint8_t *buff, int socket){
 
 uint8_t get_type(uint8_t *buff){
    struct packet_header *header;
-
    header = (struct packet_header *)buff;
+   print_buff(buff);
    return(header->flag);
 }
 
@@ -53,10 +53,9 @@ uint8_t get_type(uint8_t *buff){
  * Respond with flag 3 on error (handle exists)
  */
 void parse_flag1(uint8_t *buff, int socket){
-   char handle[MAX_HANDLE];
+   char handle[MAX_HANDLE] = "";
    struct packet_header response;
 
-   memset(handle, '0', MAX_HANDLE);
    packet_get_handle(buff + HEADER_LEN, handle);
 
    if(add_entry(handle, socket)){
@@ -132,22 +131,34 @@ uint8_t *packet_get_handle(uint8_t *buff, char *handle_buff){
    /* Get handle len from buff */
    smemcpy(&len, buff, sizeof(len));
 
-   /* Set handle string buffer to 0 */
-   smemset(handle_buff, '0', sizeof(uint8_t) * len);
-
    /* Copy handle */
-   smemcpy(handle_buff, buff, sizeof(uint8_t) * len);
+   smemcpy(handle_buff, buff + sizeof(len), sizeof(uint8_t) * len);
+
 
    /* Return memory location */
    return (buff + sizeof(len) + len);
 }
 
 
-void print_buff(uint8_t *buff, int len){
+/* Print the buffer in hex byte by byte
+ * Packet len is in network order
+ */
+void print_buff(uint8_t *buff){
+   struct packet_header *header;
+   uint16_t len;
+   int line_break = 70;
    int i;
+   
+   header = (struct packet_header *)buff;
+   len = ntohs(header->length);
+
+   printf("Recv: ");
    for(i= 0; i < len; i++){
       printf("%02x ", buff[i]);
-      if(i == 70){printf("\n");}
+      if(i == line_break){
+         printf("\n");
+         line_break += line_break;
+      }
    }
    printf("\n");
 }

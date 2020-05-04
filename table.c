@@ -16,6 +16,7 @@ static size_t num_elements;
 void init_table(){
    struct table_entry *entry;
    int i;
+   char empty[MAX_HANDLE] = "";
 
    /* Get memory and size values */
    size = ENTRY_SIZE * DEFAULT_TABLE_SIZE;
@@ -27,7 +28,7 @@ void init_table(){
       entry = &table[i];
       entry->is_free = FREE;
       entry->socket = -1;
-      memset(entry->handle, '0', MAX_HANDLE);
+      smemcpy(entry->handle, empty, sizeof(empty));
    }
 
 }
@@ -49,6 +50,8 @@ size_t expand_size(){
    struct table_entry *temp;
    int i;
    size_t new_base = 0;
+   char empty[MAX_HANDLE] = "";
+   
 
    /* Location of new memory */
    new_base = num_elements;
@@ -63,7 +66,7 @@ size_t expand_size(){
       temp = &table[new_base + i];
       temp->is_free = FREE;
       temp->socket = -1;
-      memset(temp->handle, '0', MAX_HANDLE);
+      memcpy(temp->handle, empty, sizeof(empty));
    }
 
    /* Return the start of the new memory */
@@ -79,6 +82,8 @@ int add_entry(char *handle, int socket){
    int i;
    struct table_entry *entry;
    size_t new_mem;
+
+   printf("Handle to add %s\n", handle);
    
    /* Check if handle/socket already exists */
    for(i = 0; i < num_elements; i++){
