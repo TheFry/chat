@@ -134,7 +134,6 @@ uint8_t *packet_get_handle(uint8_t *buff, char *handle_buff){
    /* Copy handle */
    smemcpy(handle_buff, buff + sizeof(len), sizeof(uint8_t) * len);
 
-
    /* Return memory location */
    return (buff + sizeof(len) + len);
 }
@@ -148,7 +147,7 @@ void print_buff(uint8_t *buff){
    uint16_t len;
    int line_break = 70;
    int i;
-   
+
    header = (struct packet_header *)buff;
    len = ntohs(header->length);
 

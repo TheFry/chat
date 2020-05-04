@@ -98,11 +98,11 @@ void addNewClient(int mainServerSocket){
 
 /* Remove client from handle table and poll set */
 void removeClient(int clientSocket){
-	char handle[MAX_HANDLE];
-	int errval;
 	printf("Client on socket %d terminted\n", clientSocket);
 
-	remove_entry(handle);
+	if(remove_entry(clientSocket)){
+		fprintf(stderr, "Error remove call\n");
+	}
 	removeFromPollSet(clientSocket);
 	close(clientSocket);
 }

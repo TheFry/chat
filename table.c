@@ -122,17 +122,22 @@ int add_entry(char *handle, int socket){
 
 /* Checks table for entry and removes it 
  * If it does not exists, returns -1
- * Does not check for duplicates (there shouldnt be any) 
+ * Does not check for duplicates (there shouldn't be any) 
  */
-
-int remove_entry(char *handle){
+int remove_entry(int socket){
    int i;
    struct table_entry *entry;
+   char empty[MAX_HANDLE] = "";
+
+   if(socket == -1){
+      return 0;
+   }
+   
    for(i = 0; i < num_elements; i++){
       entry = &table[i];
-      if(strcmp(handle, entry->handle) == 0){
+      if(entry->socket == socket){
          printf("Removed Socket %d\n", entry->socket);
-         memset(entry->handle, '0', MAX_HANDLE);
+         smemcpy(entry->handle, empty, sizeof(entry));
          entry->is_free = FREE;
          entry->socket = -1;
          return 0;

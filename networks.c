@@ -148,7 +148,7 @@ void sendPacket(int socketNum, uint8_t *sendBuf, uint16_t sendLen)
 
 	//sendLen = getFromStdin(sendBuf, "Enter data:");
 	//printf("read: %s string len: %d (including null)\n", sendBuf, sendLen);	
-	sent =  (uint16_t)send(socketNum, sendBuf, sendLen, 0);
+	sent =  (uint16_t)send(socketNum, sendBuf, sendLen, MSG_WAITALL);
 	if (sent != sendLen)
 	{
 		perror("send call");
