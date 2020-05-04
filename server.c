@@ -101,11 +101,7 @@ void removeClient(int clientSocket){
 	char handle[MAX_HANDLE];
 	
 	printf("Client on socket %d terminted\n", clientSocket);
-	
-	if((table_get_handle(clientSocket, handle))){
-		fprintf(stderr, "Error Remove: Handle not in table\n");
-	}
-
+	table_get_handle(clientSocket, handle);
 	remove_entry(handle);
 	removeFromPollSet(clientSocket);
 	close(clientSocket);

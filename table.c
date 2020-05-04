@@ -126,6 +126,7 @@ int remove_entry(char *handle){
    for(i = 0; i < num_elements; i++){
       entry = &table[i];
       if(strcmp(handle, entry->handle) == 0){
+         printf("Removed Socket %d\n", entry->socket);
          memset(entry->handle, '0', MAX_HANDLE);
          entry->is_free = FREE;
          entry->socket = -1;

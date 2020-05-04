@@ -27,11 +27,11 @@ void client_parse_packet(uint8_t *buff, int socket){
 
    switch(flag){
       case 2:
-         printf("Client Connected\n");
+         printf("Client Connected\n$");
          break;
       case 3:
          fprintf(stderr, "Handle Taken!\n");
-         break;
+         exit(-1);
       default:
          fprintf(stderr, "Not defined\n");
          exit(-1);
