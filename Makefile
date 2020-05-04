@@ -1,5 +1,5 @@
 CC= gcc
-CFLAGS= -g -Wall
+CFLAGS= -g -Wall -pedantic
 
 all: cclient server
 
@@ -28,11 +28,10 @@ packet.o:
 	$(CC) $(CFLAGS) -c packet.c -o packet.o
 
 test_table: table.o safemem.o
-	$(CC) $(CFLAGS) -o test_table test_table.c table.o safemem.o
-
+	$(CC) $(CFLAGS) -o test/test_table test/test_table.c table.o safemem.o
 
 clean:
-	rm -f server cclient test_table
+	rm -f server cclient test/test_table
 
-clean-hard: 
-	rm -f server cclient test_table *.o *.gch
+clean-hard: clean
+	rm -f *.o *.gch

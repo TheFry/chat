@@ -17,10 +17,10 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-#include "pollLib.h"
-#include "safemem.h"
-#include "networks.h"
-#include "packet.h"
+#include "headers/pollLib.h"
+#include "headers/safemem.h"
+#include "headers/networks.h"
+#include "headers/packet.h"
 
 #define DEBUG_FLAG 1
 #define PROMPT "$"

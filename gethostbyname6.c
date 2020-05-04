@@ -13,7 +13,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
    
- #include "gethostbyname6.h"
+ #include "headers/gethostbyname6.h"
  
 uint8_t * gethostbyname6(const char * hostName)
 {

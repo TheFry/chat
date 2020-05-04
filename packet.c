@@ -3,10 +3,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <arpa/inet.h>
-#include "safemem.h"
-#include "networks.h"
-#include "table.h"
-#include "packet.h"
+#include "headers/safemem.h"
+#include "headers/networks.h"
+#include "headers/table.h"
+#include "headers/packet.h"
 
 void server_parse_packet(uint8_t *buff, int socket){
    uint8_t flag = get_type(buff);

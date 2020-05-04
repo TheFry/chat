@@ -18,10 +18,10 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-#include "networks.h"
-#include "pollLib.h"
-#include "table.h"
-#include "packet.h"
+#include "headers/networks.h"
+#include "headers/pollLib.h"
+#include "headers/table.h"
+#include "headers/packet.h"
 
 
 #define DEBUG_FLAG 1
