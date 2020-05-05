@@ -30,6 +30,8 @@ int getFromStdin(char *sendBuf, char * prompt);
 void parse_args(int argc, char * argv[]);
 void init_chat(int socket, char *handle);
 void chatting(int socket, char *handle);
+void parse_input(int len, char *input);
+void parse_M(int len, char *input);
 
 int main(int argc, char * argv[]){
 	int socketNum = 0;         //socket descriptor
@@ -41,14 +43,14 @@ int main(int argc, char * argv[]){
 	socketNum = tcpClientSetup(argv[2], argv[3], 0);
 	setupPollSet();
 	init_chat(socketNum, argv[1]);
+	printf(PROMPT);
+	fflush(stdout);
 	chatting(socketNum, argv[1]);
 	
 	return 0;
 }
 
-/* Send flag 1 and wait for response from accept()
- * Note that eop/EOP mean end of packet
- */
+/* Send flag 1 and wait for response from server */
 void init_chat(int socket, char *handle){
 	uint16_t packet_len;
 	uint8_t buff[MAX_PACKET];
@@ -61,7 +63,7 @@ void init_chat(int socket, char *handle){
 	sendPacket(socket, buff, packet_len);
 	while(1){
 		/* Wait for server to respond */
-		if ((socketToProcess = pollCall(POLL_WAIT_FOREVER)) != -1){
+		if ((socketToProcess = pollCall(0)) != -1){
 
 			if(socketToProcess == socket){
 				len = recvPacket(socket, CLIENT, buff);
@@ -87,14 +89,15 @@ void chatting(int socket, char *handle){
 	char input[MAX_PACKET];
 	uint8_t packet[MAX_PACKET];
 	int incomming_socket;
-	
+	int input_len;
 
 	addToPollSet(STDIN_FILENO);
-	smemset(packet, '0', MAX_PACKET);
+	smemset(packet, '\0', MAX_PACKET);
+	smemset(input, '\0', MAX_PACKET);
 	while(1){
 
 		/* Wait for server to respond */
-		if ((incomming_socket = pollCall(POLL_WAIT_FOREVER)) != -1){
+		if ((incomming_socket = pollCall(0)) != -1){
 
 			/* Server socket */
 			if(incomming_socket == socket){
@@ -103,37 +106,83 @@ void chatting(int socket, char *handle){
 
 			/* Stdin */
 			}else if(incomming_socket == STDIN_FILENO){
-				getFromStdin(input, PROMPT);
+				if((input_len = getFromStdin(input, PROMPT)) == -1){
+					continue;
+				}
+				parse_input(input_len, input);
 			}
 		}
 	}
 }
 
 
-int getFromStdin(char *sendBuf, char * prompt)
-{
-	// Gets input up to MAXBUF-1 (and then appends \0)
-	// Returns length of string including null
+int getFromStdin(char *sendBuf, char * prompt){
 	char aChar = 0;
 	int inputLen = 0;       
 	
 	// Important you don't input more characters than you have space 
 	printf("%s ", prompt);
-	while (inputLen < (MAXBUF - 1) && aChar != '\n')
+	while (inputLen <= (MAX_PACKET + 1) && aChar != '\n')
 	{
+		if(inputLen == MAX_PACKET + 1){
+			fprintf(stderr, "Input too long\n");
+			return(-1);
+		}
 		aChar = getchar();
 		if (aChar != '\n'){
 			sendBuf[inputLen] = aChar;
 			inputLen++;
 		}
 	}
-
-	sendBuf[inputLen] = '\0';
-	inputLen++;  //we are going to send the null
-	
 	return inputLen;
 }
 
+
+void parse_input(int len, char *input){
+	
+
+	if(input[0] != '%'){ fflush(stdout); return; }
+
+	switch(input[1]){
+		case 'M':
+			parse_M(len, input);
+		case 'm':
+			parse_M(len, input);
+		default:
+			return;
+	}
+	fflush(stdout);
+}
+
+
+/* Assumes proper formatting. Will fail otherwise */
+void parse_M(int len, char *input){
+	char handle[MAX_NUM_HANDLES][MAX_HANDLE];
+	char msg[MAX_HANDLE] = "";
+	int num_handles;
+	char delim[] = " ";
+	char *ptr;
+	int i;
+
+	/* take %m token */
+	ptr = strtok(input, delim);
+
+	/* Check for length token */
+	if((ptr = strtok(NULL, delim)) == NULL){ return; }
+	if((num_handles = atoi(ptr)) <= 0){ return; }
+	
+	/* Get handles */
+	for(i = 0; i < num_handles; i++){
+		if((ptr = strtok(NULL, delim)) == NULL){ return; }
+		strcpy(handle[i], ptr);
+	}
+
+	/* Get message */
+	delim[0] = '\0';
+	if((ptr = strtok(NULL, delim)) == NULL){ return; }
+	strcpy(msg, ptr);
+
+}
 
 void parse_args(int argc, char * argv[])
 {

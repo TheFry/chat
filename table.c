@@ -11,6 +11,7 @@ static struct table_entry *table;
 static size_t size;
 static size_t num_elements;
 
+
 /* Get memory for the table and init the memory
  */
 void init_table(){

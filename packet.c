@@ -27,7 +27,6 @@ void client_parse_packet(uint8_t *buff, int socket){
 
    switch(flag){
       case 2:
-         printf("$");
          break;
       case 3:
          fprintf(stderr, "Handle Taken!\n");
@@ -39,11 +38,21 @@ void client_parse_packet(uint8_t *buff, int socket){
 }
 
 
-
 uint8_t get_type(uint8_t *buff){
    struct packet_header *header;
    header = (struct packet_header *)buff;
    return(header->flag);
+}
+
+
+/* Builds basic packet header. This is useful
+ * for flags that only require the header
+ */
+struct packet_header build_header(uint8_t flag){
+   struct packet_header header;
+   header.flag = flag;
+   header.length = htons(HEADER_LEN);
+   return header;
 }
 
 
@@ -89,18 +98,6 @@ uint16_t build_flag1(uint8_t *buff, char *handle){
    put_handle(buff + HEADER_LEN, handle);
    return(ntohs(header->length));
 }
-
-
-/* Builds basic packet header. This is useful
- * for flags that only require the header
- */
-struct packet_header build_header(uint8_t flag){
-   struct packet_header header;
-   header.flag = flag;
-   header.length = htons(HEADER_LEN);
-   return header;
-}
-
 
 /* Give a starting pointer, calculate handle len
  * Copy handle len followed by the actual handle

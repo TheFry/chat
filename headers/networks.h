@@ -11,6 +11,7 @@
 #define MAXBUF 1024
 #define MAX_HANDLE 100
 #define MAX_PACKET 1400
+#define MAX_NUM_HANDLES 9
 #define TIME_IS_NULL 1
 #define TIME_IS_NOT_NULL 2
 #define HEADER_LEN sizeof(struct packet_header)
