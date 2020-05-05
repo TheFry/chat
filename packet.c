@@ -15,6 +15,9 @@ void server_parse_packet(uint8_t *buff, int socket){
       case 1:
          parse_flag1(buff, socket);
          break;
+      case 5:
+         print_buff(buff);
+         break;
       default:
          printf("Not defined\n");
          exit(-1);
@@ -100,7 +103,7 @@ uint16_t build_flag1(uint8_t *buff, char *handle){
 }
 
 
-void build_flag5(uint8_t *buff, 
+uint16_t build_flag5(uint8_t *buff, 
                  char *my_handle,
                  char handles[MAX_NUM_HANDLES][MAX_HANDLE],
                  uint8_t num_handles,
@@ -124,6 +127,7 @@ void build_flag5(uint8_t *buff,
    overlay = (struct packet_header *)buff;
    overlay->length = htons(current - buff);
    print_buff(buff);
+   return(ntohs(overlay->length));
 }
 
 

@@ -166,6 +166,7 @@ void parse_M(int len, char *input){
 	uint8_t num_handles;
 	char delim[] = " ";
 	char *ptr;
+	uint16_t packet_length;
 	int i;
 
 	/* take %m token */
@@ -186,8 +187,9 @@ void parse_M(int len, char *input){
 	delim[0] = '\0';
 	if((ptr = strtok(NULL, delim)) == NULL){ return; }
 	strcpy(msg, ptr);
-	build_flag5(buff, my_handle, handles, num_handles, msg);
-
+	packet_length = build_flag5(buff, my_handle, handles, num_handles, msg);
+	sendPacket(my_socket, buff, packet_length);
+	return;
 }
 
 void parse_args(int argc, char * argv[])

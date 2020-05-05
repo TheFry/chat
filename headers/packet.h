@@ -12,7 +12,7 @@ struct packet_header build_header(uint8_t flag);
 void parse_flag1(uint8_t *buff, int socket);
 uint16_t build_flag1(uint8_t *buff, char *handle);
 
-void build_flag5(uint8_t *buff,
+uint16_t build_flag5(uint8_t *buff,
                  char *my_handle,
                  char handles[MAX_NUM_HANDLES][MAX_HANDLE],
                  uint8_t num_handles,
