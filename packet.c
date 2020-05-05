@@ -95,7 +95,7 @@ uint16_t build_flag1(uint8_t *buff, char *handle){
                     + sizeof(uint8_t) 
                     + handle_len);
    header->flag = 1;
-   put_handle(buff + HEADER_LEN, handle);
+   put_data(buff + HEADER_LEN, handle);
    return(ntohs(header->length));
 }
 
@@ -113,25 +113,26 @@ void build_flag5(uint8_t *buff,
 
    smemset(buff, '\0', MAX_PACKET);
    smemcpy(buff, &header, sizeof(header));
-   current = put_handle(current, my_handle);
+   current = put_data(current, my_handle);
    smemcpy(current, &num_handles, sizeof(num_handles));
    current += sizeof(num_handles);
 
    for(i = 0; i < num_handles; i++){
-      current = put_handle(current, handles[i]);
+      current = put_data(current, handles[i]);
    }
-   //current = put_handle(current, msg);
+   //current = put_data(current, msg);
    overlay = (struct packet_header *)buff;
    overlay->length = htons(current - buff);
    print_buff(buff);
 }
 
 
-/* Give a starting pointer, calculate handle len
- * Copy handle len followed by the actual handle
+/* Give a starting pointer, calculate data len using strlen
+ * Copy data len followed by the actual data
  * Exclude Null terminator if it exists (strlen does this)
+ * Returns pointer to next location for easy looping
  */
-uint8_t *put_handle(uint8_t *buff, char *handle){
+uint8_t *put_data(uint8_t *buff, char *handle){
    uint8_t len = sstrlen(handle);
 
    /* Add len to buffer */

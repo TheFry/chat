@@ -18,7 +18,7 @@ void build_flag5(uint8_t *buff,
                  uint8_t num_handles,
                  char *msg);
 
-uint8_t *put_handle(uint8_t *buff, char *handle);
+uint8_t *put_data(uint8_t *buff, char *handle);
 uint8_t *packet_get_handle(uint8_t *buff, char *handle_buff);
 
 #endif
