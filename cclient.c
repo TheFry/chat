@@ -143,7 +143,6 @@ int getFromStdin(char *sendBuf, char * prompt){
 
 void parse_input(int len, char *input){
 	
-
 	if(input[0] != '%'){ fflush(stdout); return; }
 
 	switch(input[1]){
@@ -175,6 +174,7 @@ void parse_M(int len, char *input){
 	/* Check for length token */
 	if((ptr = strtok(NULL, delim)) == NULL){ return; }
 	if((num_handles = atoi(ptr)) <= 0){ return; }
+	if(num_handles > MAX_NUM_HANDLES){ return; }
 	
 	/* Get handles */
 	for(i = 0; i < num_handles; i++){
