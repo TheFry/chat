@@ -161,6 +161,18 @@ int table_get_handle(int socket, char *handle){
 }
 
 
+/* Use handle to get socket */
+int table_get_socket(char *handle){
+   int i;
+   for(i = 0; i < num_elements; i++){
+      if((strcmp(handle, table[i].handle)) == 0){
+         return(table[i].socket);
+      }
+   }
+   return(-1);
+}
+
+
 void print_table(){
    int i;
    struct table_entry *entry;

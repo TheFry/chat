@@ -62,7 +62,7 @@ void processSockets(int mainServerSocket){
 
 	/* Run until user inputs ^C */	
 	while (1){
-		if ((socketToProcess = pollCall(POLL_WAIT_FOREVER)) != -1){
+		if ((socketToProcess = pollCall(0)) != -1){
 			
 			/* New client */
 			if (socketToProcess == mainServerSocket){
@@ -83,7 +83,7 @@ void processSockets(int mainServerSocket){
 			server_parse_packet(buff, socketToProcess);	
 		}else{
 			// Just printing here to let me know what is going on
-			printf("Poll timed out waiting for client to send data\n");
+			/*printf("Poll timed out waiting for client to send data\n");*/
 		}
 		
 	}

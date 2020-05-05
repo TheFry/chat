@@ -25,6 +25,7 @@ void reset_table();
 int add_entry(char *handle, int socket);
 int remove_entry(int socket);
 int table_get_handle(int socket, char *handle);
+int table_get_socket(char *handle);
 void print_table();
 
 

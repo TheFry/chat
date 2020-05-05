@@ -105,7 +105,7 @@ void chatting(){
 			/* Server socket */
 			if(incomming_socket == my_socket){
 				recvPacket(my_socket, CLIENT, packet);
-				break;
+				client_parse_packet(packet, my_socket);
 
 			/* Stdin */
 			}else if(incomming_socket == STDIN_FILENO){
@@ -161,7 +161,7 @@ void parse_input(int len, char *input){
 void parse_M(int len, char *input){
 	char handles[MAX_NUM_HANDLES][MAX_HANDLE];
 	char msg[MAX_HANDLE] = "";
-	uint8_t buff[MAX_PACKET];
+	uint8_t buff[MAX_PACKET] = "";
 	uint8_t num_handles;
 	char delim[] = " ";
 	char *ptr;
@@ -178,9 +178,9 @@ void parse_M(int len, char *input){
 	
 	/* Get handles */
 	for(i = 0; i < num_handles; i++){
+		smemset(handles[i], '\0', MAX_HANDLE);
 		if((ptr = strtok(NULL, delim)) == NULL){ return; }
 		strcpy(handles[i], ptr);
-		printf("%s\n", handles[i]);
 	}
 
 	/* Get message */

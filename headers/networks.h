@@ -18,6 +18,7 @@
 #define TEST size_t size
 #define CLIENT 0
 #define SERVER 1
+#define MAX_MSG 200
 
 struct packet_header{
    uint16_t length;
