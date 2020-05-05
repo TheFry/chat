@@ -77,7 +77,7 @@ void sstrcpy(char *dest, const char *src){
    }
 }
 
-void sstrlen(char *str){
+size_t sstrlen(char *str){
    size_t len;
    len = strlen(str);
 
@@ -85,4 +85,5 @@ void sstrlen(char *str){
       perror("strlen");
       exit(-1);
    }
+   return len;
 }

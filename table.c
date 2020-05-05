@@ -34,6 +34,7 @@ void init_table(){
 
 }
 
+
 /* Free memory */
 void reset_table(){
    if(table != NULL){

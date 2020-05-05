@@ -29,23 +29,25 @@ void sendToServer(int socketNum, uint8_t *buff, uint16_t sendLen);
 int getFromStdin(char *sendBuf, char * prompt);
 void parse_args(int argc, char * argv[]);
 void init_chat(int socket, char *handle);
-void chatting(int socket, char *handle);
+void chatting();
 void parse_input(int len, char *input);
 void parse_M(int len, char *input);
 
+char my_handle[MAX_HANDLE];
+int my_socket;
+
 int main(int argc, char * argv[]){
-	int socketNum = 0;         //socket descriptor
 	
 	/* Check handle length */
 	parse_args(argc, argv);
 
 	/* set up the TCP Client socket  */
-	socketNum = tcpClientSetup(argv[2], argv[3], 0);
+	my_socket = tcpClientSetup(argv[2], argv[3], 0);
 	setupPollSet();
-	init_chat(socketNum, argv[1]);
+	init_chat(my_socket, argv[1]);
 	printf(PROMPT);
 	fflush(stdout);
-	chatting(socketNum, argv[1]);
+	chatting();
 	
 	return 0;
 }
@@ -73,6 +75,7 @@ void init_chat(int socket, char *handle){
 	}
 	if(len > 0){
 		client_parse_packet(buff, socketToProcess);
+		strcpy(my_handle, handle);
 		return;
 	}else if(len < 0){
 		fprintf(stderr, "Error with flag 1 response\n");
@@ -85,7 +88,7 @@ void init_chat(int socket, char *handle){
 
 
 /* Loop until client sends exit */
-void chatting(int socket, char *handle){
+void chatting(){
 	char input[MAX_PACKET];
 	uint8_t packet[MAX_PACKET];
 	int incomming_socket;
@@ -100,8 +103,8 @@ void chatting(int socket, char *handle){
 		if ((incomming_socket = pollCall(0)) != -1){
 
 			/* Server socket */
-			if(incomming_socket == socket){
-				recvPacket(socket, CLIENT, packet);
+			if(incomming_socket == my_socket){
+				recvPacket(my_socket, CLIENT, packet);
 				break;
 
 			/* Stdin */
@@ -157,9 +160,10 @@ void parse_input(int len, char *input){
 
 /* Assumes proper formatting. Will fail otherwise */
 void parse_M(int len, char *input){
-	char handle[MAX_NUM_HANDLES][MAX_HANDLE];
+	char handles[MAX_NUM_HANDLES][MAX_HANDLE];
 	char msg[MAX_HANDLE] = "";
-	int num_handles;
+	uint8_t buff[MAX_PACKET];
+	uint8_t num_handles;
 	char delim[] = " ";
 	char *ptr;
 	int i;
@@ -174,13 +178,15 @@ void parse_M(int len, char *input){
 	/* Get handles */
 	for(i = 0; i < num_handles; i++){
 		if((ptr = strtok(NULL, delim)) == NULL){ return; }
-		strcpy(handle[i], ptr);
+		strcpy(handles[i], ptr);
+		printf("%s\n", handles[i]);
 	}
 
 	/* Get message */
 	delim[0] = '\0';
 	if((ptr = strtok(NULL, delim)) == NULL){ return; }
 	strcpy(msg, ptr);
+	build_flag5(buff, my_handle, handles, num_handles, msg);
 
 }
 

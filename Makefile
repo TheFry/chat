@@ -38,3 +38,4 @@ clean:
 
 clean-hard: clean
 	rm -f *.o *.gch
+	rm -f vgcore*
