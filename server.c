@@ -18,6 +18,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+#include "headers/safemem.h"
 #include "headers/networks.h"
 #include "headers/pollLib.h"
 #include "headers/table.h"
@@ -55,18 +56,23 @@ int main(int argc, char *argv[]){
 
 
 void processSockets(int mainServerSocket){
-	int socketToProcess = 0;
+	int socketToProcess;
 	int len;
 	uint8_t buff[MAX_PACKET];
 	addToPollSet(mainServerSocket);
 
+
+	smemset(buff, '0', sizeof(buff));
+	socketToProcess = -1;
 	/* Run until user inputs ^C */	
 	while (1){
+
 		if ((socketToProcess = pollCall(0)) != -1){
 			
 			/* New client */
 			if (socketToProcess == mainServerSocket){
 				addNewClient(mainServerSocket);
+				socketToProcess = -1;
 				continue;
 			}
 			
@@ -76,11 +82,15 @@ void processSockets(int mainServerSocket){
 			/* Close connection if 0 */
 			if(!len){
 				removeClient(socketToProcess);
+				socketToProcess = -1;
 				continue;
 			}
 			
 			/* Parse the packet */
 			server_parse_packet(buff, socketToProcess);	
+			memset(buff, '0', sizeof(buff));
+			socketToProcess = -1;
+
 		}else{
 			// Just printing here to let me know what is going on
 			/*printf("Poll timed out waiting for client to send data\n");*/

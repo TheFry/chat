@@ -15,9 +15,12 @@ uint16_t build_flag1(uint8_t *buff, char *handle);
 void parse_flag5(uint8_t *buff, int process_type);
 uint16_t build_flag5(uint8_t *buff,
                  char *my_handle,
-                 char handles[MAX_NUM_HANDLES][MAX_HANDLE],
+                 char handles[MAX_NUM_HANDLES][MAX_HANDLE + 1],
                  uint8_t num_handles,
                  char *msg);
+
+void parse_flag7(uint8_t *buff);
+uint16_t build_flag7(uint8_t *buff, char *handle);
 
 uint8_t *put_data(uint8_t *buff, char *handle);
 uint8_t *packet_get_data(uint8_t *buff, char *handle_buff);

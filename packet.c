@@ -37,6 +37,9 @@ void client_parse_packet(uint8_t *buff, int socket){
       case 5:
          parse_flag5(buff, CLIENT);
          break;
+      case 7:
+         parse_flag7(buff);
+         break;
       default:
          fprintf(stderr, "Not defined\n");
          exit(-1);
@@ -108,7 +111,7 @@ uint16_t build_flag1(uint8_t *buff, char *handle){
 
 uint16_t build_flag5(uint8_t *buff, 
                  char *my_handle,
-                 char handles[MAX_NUM_HANDLES][MAX_HANDLE],
+                 char handles[MAX_NUM_HANDLES][MAX_HANDLE + 1],
                  uint8_t num_handles,
                  char *msg){
 
@@ -138,9 +141,11 @@ void parse_flag5(uint8_t *buff, int process_type){
    char dest_handles[MAX_NUM_HANDLES][MAX_HANDLE + 1];
    char msg[MAX_MSG] = "";
    char sender[MAX_HANDLE + 1] = "";
+   uint8_t flag7_buff[MAX_PACKET] = "";
    uint8_t *ptr;
    struct packet_header *header;
    uint16_t packet_len;
+   uint16_t flag7_len;
    uint8_t num_handles;
    int socket;
    int i;
@@ -152,7 +157,7 @@ void parse_flag5(uint8_t *buff, int process_type){
    ptr += sizeof(num_handles);
 
    for(i = 0; i < num_handles; i++){
-      smemset(dest_handles[i], '\0', MAX_HANDLE + 1);
+      smemset(dest_handles[i], '\0', sizeof(dest_handles[i]));
       ptr = packet_get_data(ptr, dest_handles[i]);
    }
    sstrcpy(msg, (char *)ptr);
@@ -160,7 +165,7 @@ void parse_flag5(uint8_t *buff, int process_type){
 
    /* Client Print */
    if(process_type == CLIENT){
-      printf("\n%s: %s\n", sender, msg);
+      printf("\n%s: %s\n$", sender, msg);
       fflush(stdout);
       return;
    }
@@ -168,15 +173,37 @@ void parse_flag5(uint8_t *buff, int process_type){
    /* Server forward */
    for(i = 0; i < num_handles; i++){
       if((socket = table_get_socket(dest_handles[i])) < 0){
-         printf("%d\n", socket);
-         /* This is where to send flag 7 if needed */
+         socket = table_get_socket(sender);
+         flag7_len = build_flag7(flag7_buff, dest_handles[i]);
+         sendPacket(socket, flag7_buff, flag7_len);
+         smemset(flag7_buff, '0', sizeof(flag7_buff));
          continue;
       }
       printf("%d\n", socket);
       sendPacket(socket, buff, packet_len);
    }
-   
+}
 
+
+uint16_t build_flag7(uint8_t *buff, char *handle){
+   struct packet_header *header;
+   uint8_t *ptr;
+   uint16_t plen;
+
+   header = (struct packet_header *)buff;
+   header->flag = 7;
+   ptr = put_data(buff + HEADER_LEN, handle);
+   plen = (uintptr_t)ptr - (uintptr_t)buff;
+   header->length = htons(plen);
+   return plen;
+}
+
+
+void parse_flag7(uint8_t *buff){
+   char handle[MAX_HANDLE + 1] = "";
+   packet_get_data(buff + HEADER_LEN, handle);
+   printf("\nClient with handle %s does not exist\n$", handle);
+   fflush(stdout);
 }
 /* Give a starting pointer, calculate data len using strlen
  * Copy data len followed by the actual data

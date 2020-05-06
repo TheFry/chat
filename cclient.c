@@ -97,6 +97,7 @@ void chatting(){
 	addToPollSet(STDIN_FILENO);
 	smemset(packet, '\0', MAX_PACKET);
 	smemset(input, '\0', MAX_PACKET);
+	
 	while(1){
 
 		/* Wait for server to respond */
@@ -106,6 +107,7 @@ void chatting(){
 			if(incomming_socket == my_socket){
 				recvPacket(my_socket, CLIENT, packet);
 				client_parse_packet(packet, my_socket);
+				smemset(packet, '\0', MAX_PACKET);
 
 			/* Stdin */
 			}else if(incomming_socket == STDIN_FILENO){
@@ -113,8 +115,11 @@ void chatting(){
 					continue;
 				}
 				parse_input(input_len, input);
+				smemset(packet, '\0', MAX_PACKET);
+				smemset(input, '\0', MAX_PACKET);
 			}
 		}
+
 	}
 }
 
@@ -137,6 +142,7 @@ int getFromStdin(char *sendBuf, char * prompt){
 			inputLen++;
 		}
 	}
+	fflush(stdout);
 	return inputLen;
 }
 
@@ -159,8 +165,8 @@ void parse_input(int len, char *input){
 
 /* Assumes proper formatting. Will fail otherwise */
 void parse_M(int len, char *input){
-	char handles[MAX_NUM_HANDLES][MAX_HANDLE];
-	char msg[MAX_HANDLE] = "";
+	char handles[MAX_NUM_HANDLES][MAX_HANDLE + 1];
+	char msg[MAX_MSG] = "";
 	uint8_t buff[MAX_PACKET] = "";
 	uint8_t num_handles;
 	char delim[] = " ";
