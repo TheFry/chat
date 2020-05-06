@@ -167,11 +167,14 @@ void parse_input(int len, char *input){
 void parse_M(int len, char *input){
 	char handles[MAX_NUM_HANDLES][MAX_HANDLE + 1];
 	char msg[MAX_MSG] = "";
+	int msg_len;
 	uint8_t buff[MAX_PACKET] = "";
 	uint8_t num_handles;
 	char delim[] = " ";
 	char *ptr;
 	uint16_t packet_length;
+	int breakc;
+	int leftover;
 	int i;
 
 	/* take %m token */
@@ -184,19 +187,37 @@ void parse_M(int len, char *input){
 	
 	/* Get handles */
 	for(i = 0; i < num_handles; i++){
-		smemset(handles[i], '\0', MAX_HANDLE);
+		smemset(handles[i], '\0', sizeof(handles[i]));
 		if((ptr = strtok(NULL, delim)) == NULL){ return; }
+		if(strlen(ptr) > MAX_HANDLE){
+			printf("\nHandle %s is too long\n$ ", ptr);
+			fflush(stdout);
+			return;
+		}
 		strcpy(handles[i], ptr);
 	}
 
 	/* Get message */
 	delim[0] = '\0';
 	if((ptr = strtok(NULL, delim)) == NULL){ return; }
+	/*if((msg_len = strlen(ptr)) >= MAX_MSG){
+		breakc = msg_len / MAX_MSG;
+		leftover = msg_len % MAX_MSG;
+
+		for(i = 0; i < breakc; i++){
+			smemcpy(msg, ptr, MAX_MSG - 1);  /* minus 1 for null 
+			packet_length = build_flag5
+
+		}
+	}
+	*/
 	strcpy(msg, ptr);
 	packet_length = build_flag5(buff, my_handle, handles, num_handles, msg);
 	sendPacket(my_socket, buff, packet_length);
 	return;
 }
+
+
 
 void parse_args(int argc, char * argv[])
 {
