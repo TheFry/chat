@@ -26,6 +26,7 @@ void parse_flag8(int socket);
 void parse_flag10(int socket);
 void build_flag11();
 void build_flag12(uint8_t *buff, char *handle);
+void parse_flag12();
 
 uint8_t *put_data(uint8_t *buff, char *handle);
 uint8_t *packet_get_data(uint8_t *buff, char *handle_buff);

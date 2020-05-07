@@ -51,6 +51,8 @@ void client_parse_packet(uint8_t *buff, int socket){
          printf("\n");
          exit(-1);
          break;
+      case 12:
+         //parse_flag12();
       default:
          printf("\nNot defined\n");
          print_buff(buff);
@@ -272,6 +274,12 @@ void build_flag12(uint8_t *buff, char *handle){
    
    put_data(buff + HEADER_LEN, handle);
    print_buff(buff);
+}
+
+
+void parse_flag12(uint8_t *buff){
+   
+
 }
 
 
