@@ -55,6 +55,7 @@ void client_parse_packet(uint8_t *buff, int socket){
 }
 
 
+/* Get packet flag field */
 uint8_t get_type(uint8_t *buff){
    struct packet_header *header;
    header = (struct packet_header *)buff;
@@ -117,6 +118,7 @@ uint16_t build_flag1(uint8_t *buff, char *handle){
 }
 
 
+/* Build a message packet */
 uint16_t build_flag5(uint8_t *buff, 
                  char *my_handle,
                  char handles[MAX_NUM_HANDLES][MAX_HANDLE + 1],
@@ -145,6 +147,10 @@ uint16_t build_flag5(uint8_t *buff,
 }
 
 
+/* Get info from a message packet 
+ * The client will print the message,
+ * The server will forward or respond with flag 7
+ */
 void parse_flag5(uint8_t *buff, int process_type){
    char dest_handles[MAX_NUM_HANDLES][MAX_HANDLE + 1];
    char msg[MAX_MSG] = "";
@@ -193,6 +199,7 @@ void parse_flag5(uint8_t *buff, int process_type){
 }
 
 
+/* Let client know that the handle was invalid */
 uint16_t build_flag7(uint8_t *buff, char *handle){
    struct packet_header *header;
    uint8_t *ptr;
@@ -207,6 +214,7 @@ uint16_t build_flag7(uint8_t *buff, char *handle){
 }
 
 
+
 void parse_flag7(uint8_t *buff){
    char handle[MAX_HANDLE + 1] = "";
    packet_get_data(buff + HEADER_LEN, handle);
@@ -215,12 +223,15 @@ void parse_flag7(uint8_t *buff){
 }
 
 
+/* Server sends flag 9 */
 void parse_flag8(int socket){
    struct packet_header header;
    int exit_response = 9;
    header = build_header(exit_response);
    sendPacket(socket, (uint8_t *)&header, ntohs(header.length));
 }
+
+
 /* Give a starting pointer, calculate data len using strlen
  * Copy data len followed by the actual data
  * Exclude Null terminator if it exists (strlen does this)
