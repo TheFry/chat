@@ -61,7 +61,6 @@ void processSockets(int mainServerSocket){
 	uint8_t buff[MAX_PACKET];
 	addToPollSet(mainServerSocket);
 
-
 	smemset(buff, '0', sizeof(buff));
 	socketToProcess = -1;
 	/* Run until user inputs ^C */	

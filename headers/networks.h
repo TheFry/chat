@@ -37,5 +37,6 @@ int selectCall(int socketNumber, int seconds, int microseconds, int timeIsNotNul
 // shared
 void sendPacket(int socketNum, uint8_t *sendBuf, uint16_t sendLen);
 int recvPacket(int clientSocket, int process_type, uint8_t *buff);
+size_t srecv(int fd, void *buff, size_t len, int flags, int process_type);
 
 #endif

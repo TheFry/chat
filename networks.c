@@ -161,18 +161,49 @@ int recvPacket(int clientSocket, int process_type, uint8_t *return_buff)
 {
 	uint8_t buf[MAX_PACKET];
 	int messageLen = 0;
-	
+	struct packet_header *header;
+	uint16_t data_len;
 	/* 0 out buffers */
 	smemset(buf, '0', MAX_PACKET);
 	smemset(return_buff, '0', MAX_PACKET);
+
+	header = (struct packet_header *)buf;
 	
+	/* Get Header */
+	messageLen = srecv(clientSocket, buf, HEADER_LEN, MSG_WAITALL, process_type);
+	
+	/* dc'd */
+	if(!messageLen){ return(messageLen); }
+
+	/* Used to set recv length
+	 * If the length = header length, return */
+	data_len = ntohs(header->length) - HEADER_LEN;
+	if(data_len == 0){
+		smemcpy(return_buff, buf, HEADER_LEN);
+		return(HEADER_LEN);
+	}
+
 	/* Get data */
-	if ((messageLen = recv(clientSocket, buf, MAX_PACKET, 0)) < 0)
+	messageLen = srecv(clientSocket, buf + HEADER_LEN, data_len, MSG_WAITALL, process_type);
+
+	/* dc'd */
+	if(!messageLen){ return(messageLen); }
+
+	/* Copy data */
+	smemcpy(return_buff, buf, data_len + HEADER_LEN);
+	return(messageLen);
+}
+
+size_t srecv(int fd, void *buff, size_t len, int flags, int process_type){
+	size_t messageLen;
+
+	if ((messageLen = recv(fd, buff, len, flags)) < 0)
 	{
 		perror("recv call");
 		exit(-1);
 	}
 	
+	/* Get data */
 	if (messageLen == 0)
 	{
 		/* recv() 0 bytes so client is gone */
@@ -186,7 +217,6 @@ int recvPacket(int clientSocket, int process_type, uint8_t *return_buff)
 		}
 
 	}
-	/* Copy data */
-	smemcpy(return_buff, buf, messageLen);
+
 	return(messageLen);
 }
