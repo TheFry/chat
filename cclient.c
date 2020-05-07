@@ -32,6 +32,7 @@ void init_chat(int socket, char *handle);
 void chatting();
 void parse_input(int len, char *input);
 void parse_M(int len, char *input);
+void parse_E();
 
 char my_handle[MAX_HANDLE];
 int my_socket;
@@ -153,28 +154,40 @@ void parse_input(int len, char *input){
 
 	switch(input[1]){
 		case 'M':
-			parse_M(len, input);
 		case 'm':
 			parse_M(len, input);
+			break;
+		case 'E':
+		case 'e':
+			parse_E();
 		default:
-			return;
+			break;
 	}
 	fflush(stdout);
 }
 
 
+void parse_E(){
+	struct packet_header header;
+	int exit_flag = 8;
+
+	header = build_header(exit_flag);
+	sendPacket(my_socket, (uint8_t *)&header, ntohs(header.length));
+	return;
+}
+
 /* Assumes proper formatting. Will fail otherwise */
 void parse_M(int len, char *input){
 	char handles[MAX_NUM_HANDLES][MAX_HANDLE + 1];
 	char msg[MAX_MSG] = "";
-	int msg_len;
+	//int msg_len;
 	uint8_t buff[MAX_PACKET] = "";
 	uint8_t num_handles;
 	char delim[] = " ";
 	char *ptr;
 	uint16_t packet_length;
-	int breakc;
-	int leftover;
+	//int breakc;
+	//int leftover;
 	int i;
 
 	/* take %m token */
@@ -205,7 +218,7 @@ void parse_M(int len, char *input){
 		leftover = msg_len % MAX_MSG;
 
 		for(i = 0; i < breakc; i++){
-			smemcpy(msg, ptr, MAX_MSG - 1);  /* minus 1 for null 
+			smemcpy(msg, ptr, MAX_MSG - 1);   minus 1 for null 
 			packet_length = build_flag5
 
 		}

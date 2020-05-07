@@ -18,9 +18,12 @@ void server_parse_packet(uint8_t *buff, int socket){
       case 5:
          parse_flag5(buff, SERVER);
          break;
+      case 8:
+         parse_flag8(socket);
       default:
          printf("Not defined\n");
-         exit(-1);
+         print_buff(buff);
+         break;
    }
 }
 
@@ -40,9 +43,14 @@ void client_parse_packet(uint8_t *buff, int socket){
       case 7:
          parse_flag7(buff);
          break;
-      default:
-         fprintf(stderr, "Not defined\n");
+      case 9:
+         printf("\n");
          exit(-1);
+         break;
+      default:
+         printf("\nNot defined\n");
+         print_buff(buff);
+         break;
    }
 }
 
@@ -204,6 +212,14 @@ void parse_flag7(uint8_t *buff){
    packet_get_data(buff + HEADER_LEN, handle);
    printf("\nClient with handle %s does not exist\n$", handle);
    fflush(stdout);
+}
+
+
+void parse_flag8(int socket){
+   struct packet_header header;
+   int exit_response = 9;
+   header = build_header(exit_response);
+   sendPacket(socket, (uint8_t *)&header, ntohs(header.length));
 }
 /* Give a starting pointer, calculate data len using strlen
  * Copy data len followed by the actual data
