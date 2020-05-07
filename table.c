@@ -76,6 +76,8 @@ size_t expand_size(){
 }
 
 
+
+
 /* Check table for conflicts and add handles/sockets
  * Call expand_size if needed .
  * Return -1 if there is a handle collision and exit for sockets
@@ -185,4 +187,29 @@ void print_table(){
       printf("\tHandle: %s\n", entry->handle);
       printf("\tFree flag: %d\n\n", entry->is_free);
    }
+}
+
+
+uint32_t get_num_elements(){
+   int i;
+   uint32_t num = 0;
+
+   for(i = 0; i < num_elements; i++){
+      if(table[i].is_free == FULL){
+         num++;
+      }
+   }
+
+   printf("Num Elements: %u\n", num);
+   return num;
+}
+
+
+void get_entry(size_t index, char *handle){
+   if(index >= num_elements){
+      fprintf(stderr, "Index too high\n");
+      return;
+   }
+
+   strcpy(handle, table[index].handle);
 }

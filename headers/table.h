@@ -17,7 +17,7 @@
 struct table_entry{
    int socket;
    uint8_t is_free;
-   char handle[MAX_HANDLE];
+   char handle[MAX_HANDLE + 1];
 } __attribute__((packed));
 
 void init_table();
@@ -27,6 +27,8 @@ int remove_entry(int socket);
 int table_get_handle(int socket, char *handle);
 int table_get_socket(char *handle);
 void print_table();
+uint32_t get_num_elements();
+void get_entry(size_t index, char *handle);
 
 
 

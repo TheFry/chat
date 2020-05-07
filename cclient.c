@@ -33,16 +33,15 @@ void chatting();
 void parse_input(int len, char *input);
 void parse_M(int len, char *input);
 void parse_E();
+void parse_L();
 
 char my_handle[MAX_HANDLE];
 int my_socket;
 
 int main(int argc, char * argv[]){
 	
-	/* Check handle length */
 	parse_args(argc, argv);
 
-	/* set up the TCP Client socket  */
 	my_socket = tcpClientSetup(argv[2], argv[3], 0);
 	setupPollSet();
 	init_chat(my_socket, argv[1]);
@@ -160,6 +159,10 @@ void parse_input(int len, char *input){
 		case 'E':
 		case 'e':
 			parse_E();
+			break;
+		case 'L':
+		case 'l':
+			parse_L();
 		default:
 			break;
 	}
@@ -167,14 +170,25 @@ void parse_input(int len, char *input){
 }
 
 
+/* Request list of handles */
+void parse_L(){
+	int hrequest = 10;
+	struct packet_header header;
+
+	header = build_header(hrequest);
+	sendPacket(my_socket, (uint8_t *)&header, ntohs(header.length));
+}
+
+
+/* Send exit flag */
 void parse_E(){
 	struct packet_header header;
 	int exit_flag = 8;
 
 	header = build_header(exit_flag);
 	sendPacket(my_socket, (uint8_t *)&header, ntohs(header.length));
-	return;
 }
+
 
 /* Assumes proper formatting. Will fail otherwise */
 void parse_M(int len, char *input){

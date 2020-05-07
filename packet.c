@@ -20,6 +20,10 @@ void server_parse_packet(uint8_t *buff, int socket){
          break;
       case 8:
          parse_flag8(socket);
+         break;
+      case 10:
+         parse_flag10(socket);
+         break;
       default:
          printf("Not defined\n");
          print_buff(buff);
@@ -223,12 +227,66 @@ void parse_flag7(uint8_t *buff){
 }
 
 
-/* Server sends flag 9 */
+/* Remove client from table and send flag 9*/
 void parse_flag8(int socket){
    struct packet_header header;
    int exit_response = 9;
    header = build_header(exit_response);
+   remove_entry(socket);
    sendPacket(socket, (uint8_t *)&header, ntohs(header.length));
+}
+
+
+/* Send handles to client
+ * Build and send flag 11, flag 12(s) and flag 13 */
+void parse_flag10(int socket){
+   uint8_t buff[MAX_PACKET] = "";
+   char handle[MAX_HANDLE + 1] = "";
+   struct packet_header *header;
+   uint32_t num_handles = get_num_elements();
+   int i;
+
+   header = (struct packet_header *)buff;
+   build_flag11(buff);
+   sendPacket(socket, buff, ntohs(header->length));
+
+
+   for(i = 0; i < num_handles; i++){
+      smemset(buff, '0', sizeof(buff));
+      smemset(handle, '0', sizeof(handle));
+      get_entry(i, handle);
+      build_flag12(buff, handle);
+   }
+
+}
+
+
+void build_flag12(uint8_t *buff, char *handle){
+   struct packet_header *header;
+   uint8_t handle_len = strlen(handle);
+
+   header = (struct packet_header *)buff;
+
+   header->flag = 12;
+   header->length = htons(HEADER_LEN + sizeof(handle_len) + handle_len);
+   
+   put_data(buff + HEADER_LEN, handle);
+   print_buff(buff);
+}
+
+
+/* Stick the number of handles onto a header */
+void build_flag11(uint8_t *buff){
+   struct packet_header *header;
+   uint32_t num_handles = 0;
+
+   header = (struct packet_header *)buff;
+   num_handles = htonl(get_num_elements());
+
+   header->length = htons(HEADER_LEN + sizeof(uint32_t));
+   header->flag = 11;
+
+   smemcpy(buff + HEADER_LEN, &num_handles, sizeof(num_handles)); 
 }
 
 
