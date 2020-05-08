@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <stdio.h>
-#include "headers/safemem.h"
+#include "safemem.h"
 
 void *smemcpy(void *dest, const void *src, size_t n){
    void *ptr = NULL;

@@ -20,10 +20,10 @@
 #include <netdb.h>
 #include <poll.h>
 
-#include "headers/safemem.h"
-#include "headers/gethostbyname6.h"
-#include "headers/packet.h"
-#include "headers/networks.h"
+#include "safemem.h"
+#include "gethostbyname6.h"
+#include "packet.h"
+#include "networks.h"
 
 // This function creates the server socket.  The function 
 // returns the server socket number and prints the port 

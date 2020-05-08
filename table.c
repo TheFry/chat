@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "headers/safemem.h"
-#include "headers/table.h"
+#include "safemem.h"
+#include "table.h"
 
 static struct table_entry *table;
 static size_t size;

@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "headers/pollLib.h"
-#include "headers/safemem.h"
+#include "pollLib.h"
+#include "safemem.h"
 
 
 // Poll global variables 

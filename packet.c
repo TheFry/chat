@@ -4,11 +4,11 @@
 #include <string.h>
 #include <stdint.h>
 #include <arpa/inet.h>
-#include "headers/safemem.h"
-#include "headers/networks.h"
-#include "headers/table.h"
-#include "headers/packet.h"
-#include "headers/pollLib.h"
+#include "safemem.h"
+#include "networks.h"
+#include "table.h"
+#include "packet.h"
+#include "pollLib.h"
 
 void server_parse_packet(uint8_t *buff, int socket){
    uint8_t flag = get_type(buff);

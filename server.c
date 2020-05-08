@@ -18,11 +18,11 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-#include "headers/safemem.h"
-#include "headers/networks.h"
-#include "headers/pollLib.h"
-#include "headers/table.h"
-#include "headers/packet.h"
+#include "safemem.h"
+#include "networks.h"
+#include "pollLib.h"
+#include "table.h"
+#include "packet.h"
 
 
 #define DEBUG_FLAG 1
