@@ -152,7 +152,8 @@ int getFromStdin(char *sendBuf, char * prompt){
 void parse_input(int len, char *input){
 	
 	if(input[0] != '%'){ 
-		printf("Invalid Command\n"); 
+		printf("\nInvalid Command\n$ "); 
+		fflush(stdout);
 		return; 
 	}
 
@@ -174,7 +175,7 @@ void parse_input(int len, char *input){
 			parse_B(input);
 			break;
 		default:
-			printf("\nInvalid Command\n");
+			printf("\nInvalid Command\n$ ");
 			break;
 	}
 
