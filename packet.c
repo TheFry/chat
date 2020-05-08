@@ -17,6 +17,9 @@ void server_parse_packet(uint8_t *buff, int socket){
       case 1:
          parse_flag1(buff, socket);
          break;
+      case 4:
+         parse_flag4(buff, SERVER);
+         break;
       case 5:
          parse_flag5(buff, SERVER);
          break;
@@ -43,6 +46,9 @@ void client_parse_packet(uint8_t *buff, int socket){
       case 3:
          fprintf(stderr, "Handle Taken!\n");
          exit(-1);
+      case 4:
+         parse_flag4(buff, CLIENT);
+         break;
       case 5:
          parse_flag5(buff, CLIENT);
          break;
@@ -141,10 +147,39 @@ uint16_t build_flag4(uint8_t *buff, char *msg, char *handle){
    ptr = put_data(buff + HEADER_LEN, handle);
    sstrcpy((char *)ptr, msg);
    header->length = htons((uintptr_t)ptr + strlen(msg) + 1 - (uintptr_t)buff);
-   printf("%u\n", ntohs(header->length));
+
    return ntohs(header->length);
 }
 
+
+void parse_flag4(uint8_t *buff, int process_type){
+   char handle[MAX_HANDLE + 1] = "";
+   char table_handle[MAX_HANDLE + 1] = "";
+   uint8_t *ptr;
+   uint32_t num_elements;
+   uint16_t packet_len = ntohs(*(uint16_t *)buff);
+   int socket;
+   int i;
+
+   ptr = packet_get_data(buff + HEADER_LEN, handle);
+   
+   if(process_type == CLIENT){
+      printf("\n%s: %s\n$ ", handle, ptr);
+      fflush(stdout);
+      return;
+   }
+
+   num_elements =  get_num_elements();
+   for(i = 0; i < num_elements; i++){
+      get_entry(i, table_handle);
+      if(!strcmp(table_handle, handle)){ continue; }
+      socket = table_get_socket(table_handle);
+      if(socket == -1){ continue; }
+      sendPacket(socket, buff, packet_len);
+   }
+
+
+}
 
 /* Build a message packet */
 uint16_t build_flag5(uint8_t *buff, 
@@ -221,7 +256,6 @@ void parse_flag5(uint8_t *buff, int process_type){
          smemset(flag7_buff, '0', sizeof(flag7_buff));
          continue;
       }
-      printf("%d\n", socket);
       sendPacket(socket, buff, packet_len);
    }
 }

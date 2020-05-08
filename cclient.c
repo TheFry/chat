@@ -34,7 +34,7 @@ void parse_input(int len, char *input);
 void parse_M(int len, char *input);
 void parse_E();
 void parse_L();
-void parse_B(int len, char *input);
+void parse_B(char *input);
 int break_msg(char *msg, char messages[MAX_PACKET/MAX_MSG][MAX_MSG]);
 
 char my_handle[MAX_HANDLE];
@@ -165,9 +165,11 @@ void parse_input(int len, char *input){
 		case 'L':
 		case 'l':
 			parse_L();
+			break;
 		case 'B':
 		case 'b':
-			parse_B(len, input);
+			parse_B(input);
+			break;
 		default:
 			break;
 	}
@@ -176,9 +178,10 @@ void parse_input(int len, char *input){
 }
 
 
-void parse_B(int len, char *input){
+void parse_B(char *input){
 	char messages[NUM_MSGS][MAX_MSG];
 	uint8_t buff[MAX_PACKET] = "";
+	uint16_t len;
 	char *ptr;
 	int num_msgs;
 	int i;
@@ -188,13 +191,16 @@ void parse_B(int len, char *input){
 
 	/* Check for empty message */
 	if((ptr=strtok(NULL, "\0")) == NULL){
-		build_flag4(buff, "", my_handle);
+		len = build_flag4(buff, "", my_handle);
+		sendPacket(my_socket, buff, len);
+		return;
 	}
 
 	num_msgs = break_msg(ptr, messages);
 
 	for(i = 0; i < num_msgs; i++){
-		build_flag4(buff, messages[i], my_handle);
+		len = build_flag4(buff, messages[i], my_handle);
+		sendPacket(my_socket, buff, len);
 		memset(buff, '0', MAX_PACKET);
 	}
 
