@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
 	//create the server socket
 	mainServerSocket = tcpServerSetup(portNumber);
 
-	// Main control process (clients and accept())
+	// Main control process (parse clients and accept())
 	processSockets(mainServerSocket);
 	
 	// close the socket - never gets here but nice thought

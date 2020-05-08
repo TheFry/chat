@@ -133,6 +133,19 @@ uint16_t build_flag1(uint8_t *buff, char *handle){
 }
 
 
+uint16_t build_flag4(uint8_t *buff, char *msg, char *handle){
+   struct packet_header *header = (struct packet_header *)buff;
+   uint8_t *ptr;
+
+   header->flag = 4;
+   ptr = put_data(buff + HEADER_LEN, handle);
+   sstrcpy((char *)ptr, msg);
+   header->length = htons((uintptr_t)ptr + strlen(msg) + 1 - (uintptr_t)buff);
+   printf("%u\n", ntohs(header->length));
+   return ntohs(header->length);
+}
+
+
 /* Build a message packet */
 uint16_t build_flag5(uint8_t *buff, 
                  char *my_handle,

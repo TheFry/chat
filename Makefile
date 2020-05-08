@@ -30,8 +30,8 @@ packet.o:
 test_table: table.o safemem.o
 	$(CC) $(CFLAGS) -o test/test_table test/test_table.c table.o safemem.o
 
-test_client: cclient
-	$(CC) $(CFLAGS) -o test/test_client test/multi_client.c
+test_client: cclient safemem.o
+	$(CC) $(CFLAGS) -o test/test_client test/multi_client.c safemem.o
 
 clean:
 	rm -f server cclient test/test_table test/test_client

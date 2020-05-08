@@ -20,6 +20,8 @@
 #define SERVER 1
 #define MAX_MSG 200
 
+#define NUM_MSGS MAX_PACKET/MAX_MSG
+
 struct packet_header{
    uint16_t length;
    uint8_t flag;

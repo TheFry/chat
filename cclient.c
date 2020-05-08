@@ -34,6 +34,8 @@ void parse_input(int len, char *input);
 void parse_M(int len, char *input);
 void parse_E();
 void parse_L();
+void parse_B(int len, char *input);
+int break_msg(char *msg, char messages[MAX_PACKET/MAX_MSG][MAX_MSG]);
 
 char my_handle[MAX_HANDLE];
 int my_socket;
@@ -163,6 +165,9 @@ void parse_input(int len, char *input){
 		case 'L':
 		case 'l':
 			parse_L();
+		case 'B':
+		case 'b':
+			parse_B(len, input);
 		default:
 			break;
 	}
@@ -171,7 +176,31 @@ void parse_input(int len, char *input){
 }
 
 
-/* Request list of handles */
+void parse_B(int len, char *input){
+	char messages[NUM_MSGS][MAX_MSG];
+	uint8_t buff[MAX_PACKET] = "";
+	char *ptr;
+	int num_msgs;
+	int i;
+
+	/* Clear %b */
+	ptr = strtok(input, " ");
+
+	/* Check for empty message */
+	if((ptr=strtok(NULL, "\0")) == NULL){
+		build_flag4(buff, "", my_handle);
+	}
+
+	num_msgs = break_msg(ptr, messages);
+
+	for(i = 0; i < num_msgs; i++){
+		build_flag4(buff, messages[i], my_handle);
+		memset(buff, '0', MAX_PACKET);
+	}
+
+}
+
+/* Request list of handles by sending flag 10 */
 void parse_L(){
 	int hrequest = 10;
 	struct packet_header header;
@@ -194,15 +223,15 @@ void parse_E(){
 /* Assumes proper formatting. Will fail otherwise */
 void parse_M(int len, char *input){
 	char handles[MAX_NUM_HANDLES][MAX_HANDLE + 1];
-	char msg[MAX_MSG] = "";
-	//int msg_len;
+	char msg[MAX_PACKET] = "";
+	char messages[NUM_MSGS][MAX_MSG];
+	int num_msgs;
 	uint8_t buff[MAX_PACKET] = "";
 	uint8_t num_handles;
 	char delim[] = " ";
 	char *ptr;
 	uint16_t packet_length;
-	//int breakc;
-	//int leftover;
+
 	int i;
 
 	/* take %m token */
@@ -227,24 +256,53 @@ void parse_M(int len, char *input){
 
 	/* Get message */
 	delim[0] = '\0';
-	if((ptr = strtok(NULL, delim)) == NULL){ return; }
-	/*if((msg_len = strlen(ptr)) >= MAX_MSG){
-		breakc = msg_len / MAX_MSG;
-		leftover = msg_len % MAX_MSG;
 
-		for(i = 0; i < breakc; i++){
-			smemcpy(msg, ptr, MAX_MSG - 1);   minus 1 for null 
-			packet_length = build_flag5
-
-		}
+	/*Empty Message */
+	if((ptr = strtok(NULL, delim)) == NULL){
+		packet_length = build_flag5(buff, my_handle, handles, num_handles, "");
+		sendPacket(my_socket, buff, packet_length);
+		return;
 	}
-	*/
-	strcpy(msg, ptr);
-	packet_length = build_flag5(buff, my_handle, handles, num_handles, msg);
-	sendPacket(my_socket, buff, packet_length);
-	return;
+
+	sstrcpy(msg, ptr);
+	num_msgs = break_msg(msg, messages);
+	for(i = 0; i < num_msgs; i++){
+		packet_length = build_flag5(buff, my_handle, handles, num_handles, messages[i]);
+		sendPacket(my_socket, buff, packet_length);
+		memset(buff, '0', sizeof(buff));
+	}
 }
 
+
+int break_msg(char *msg, char messages[NUM_MSGS][MAX_MSG]){
+	int msg_len;
+	int i;
+
+	/* Clear out arrays, guarenteed to have a null byte for string */
+	for(i = 0; i < NUM_MSGS; i++){
+		smemset(messages[i], '\0', sizeof(messages[i]));
+	}
+
+	/* Message will fit into one packet */
+	if((msg_len = sstrlen(msg)) < MAX_MSG){
+		sstrcpy(messages[0], msg);
+		return 1;
+	}
+
+	i = 0;
+	while(msg_len > 0){
+		if(msg_len < MAX_MSG){
+			smemcpy(messages[i], msg, msg_len);
+			break;
+		}
+
+		smemcpy(messages[i], msg, MAX_MSG - 1);
+		msg += (MAX_MSG - 1);
+		msg_len -= (MAX_MSG - 1);
+		i++;
+	}
+	return i + 1;
+}
 
 
 void parse_args(int argc, char * argv[])
