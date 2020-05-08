@@ -109,9 +109,7 @@ void addNewClient(int mainServerSocket){
 void removeClient(int clientSocket){
 	printf("Client %d: Terminted\n", clientSocket);
 
-	if(remove_entry(clientSocket)){
-		fprintf(stderr, "Socket %d was not in table\n", clientSocket);
-	}
+	remove_entry(clientSocket);
 
 	removeFromPollSet(clientSocket);
 	close(clientSocket);
@@ -122,7 +120,7 @@ int checkArgs(int argc, char *argv[]){
 	// Checks args and returns port number
 	int portNumber = 0;
 
-	if (argc > 2){
+	if (argc > 2 || argc < 2){
 		fprintf(stderr, "Usage %s [optional port number]\n", argv[0]);
 		exit(-1);
 	}

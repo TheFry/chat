@@ -219,7 +219,7 @@ size_t srecv(int fd, void *buff, size_t len, int flags, int process_type){
 
 		/* Server is gone */
 		}else{
-			printf("Server sent 0 bytes, exiting\n");
+			printf("\nServer Terminated\n");
 			exit(-1);
 		}
 
