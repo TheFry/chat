@@ -151,7 +151,10 @@ int getFromStdin(char *sendBuf, char * prompt){
 
 void parse_input(int len, char *input){
 	
-	if(input[0] != '%'){ fflush(stdout); return; }
+	if(input[0] != '%'){ 
+		printf("Invalid Command\n"); 
+		return; 
+	}
 
 	switch(input[1]){
 		case 'M':
@@ -171,6 +174,7 @@ void parse_input(int len, char *input){
 			parse_B(input);
 			break;
 		default:
+			printf("\nInvalid Command\n");
 			break;
 	}
 
@@ -244,9 +248,9 @@ void parse_M(int len, char *input){
 	ptr = strtok(input, delim);
 
 	/* Check for length token */
-	if((ptr = strtok(NULL, delim)) == NULL){ return; }
-	if((num_handles = atoi(ptr)) <= 0){ return; }
-	if(num_handles > MAX_NUM_HANDLES){ return; }
+	if((ptr = strtok(NULL, delim)) == NULL){ printf("Invalid format\n"); return; }
+	if((num_handles = atoi(ptr)) <= 0){ printf("Invalid format\n"); return; }
+	if(num_handles > MAX_NUM_HANDLES){ printf("Invalid format\n"); return; }
 	
 	/* Get handles */
 	for(i = 0; i < num_handles; i++){

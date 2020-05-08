@@ -13,7 +13,7 @@ struct packet_header build_header(uint8_t flag);
 /* Init packets */
 uint16_t build_flag1(uint8_t *buff, char *handle);
 void parse_flag1(uint8_t *buff, int socket);
-
+void parse_flag3();
 /*Broadcast */
 uint16_t build_flag4(uint8_t *buff, char *msg, char *handle);
 void parse_flag4(uint8_t *buff, int process_type);

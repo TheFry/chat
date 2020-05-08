@@ -44,8 +44,7 @@ void client_parse_packet(uint8_t *buff, int socket){
       case 2:
          break;
       case 3:
-         fprintf(stderr, "Handle Taken!\n");
-         exit(-1);
+         parse_flag3(buff);
       case 4:
          parse_flag4(buff, CLIENT);
          break;
@@ -123,7 +122,12 @@ uint16_t build_flag1(uint8_t *buff, char *handle){
    struct packet_header *header;
 
    if(handle_len > MAX_HANDLE){
-      fprintf(stderr, "Handle too long\n");
+      printf("Invalid handle, handle longer than 100 characters %s\n", handle);
+      exit(-1);
+   }
+
+   if(handle[0] >= 48 && handle[0] <= 57){
+      printf("Invalid handle, handle starts with number\n");
       exit(-1);
    }
 
@@ -138,6 +142,11 @@ uint16_t build_flag1(uint8_t *buff, char *handle){
    return(ntohs(header->length));
 }
 
+
+void parse_flag3(){
+   printf("Handle Already in use\n");
+   exit(-1);
+}
 
 uint16_t build_flag4(uint8_t *buff, char *msg, char *handle){
    struct packet_header *header = (struct packet_header *)buff;
