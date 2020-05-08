@@ -200,7 +200,6 @@ uint32_t get_num_elements(){
       }
    }
 
-   printf("Num Elements: %u\n", num);
    return num;
 }
 
