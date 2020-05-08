@@ -1,5 +1,5 @@
 CC= gcc
-CFLAGS= -g -Wall -pedantic
+CFLAGS= -g -Wall
 
 all: cclient server
 
