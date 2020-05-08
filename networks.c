@@ -157,6 +157,9 @@ void sendPacket(int socketNum, uint8_t *sendBuf, uint16_t sendLen)
 }
 
 
+/* Breaks up the recv call in two parts:
+ * Header and data
+ */
 int recvPacket(int clientSocket, int process_type, uint8_t *return_buff)
 {
 	uint8_t buf[MAX_PACKET];
@@ -194,6 +197,10 @@ int recvPacket(int clientSocket, int process_type, uint8_t *return_buff)
 	return(messageLen);
 }
 
+
+/* Calls recv and checks error stats
+ * Returns the length read
+ */
 size_t srecv(int fd, void *buff, size_t len, int flags, int process_type){
 	size_t messageLen;
 

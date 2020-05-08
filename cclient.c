@@ -106,7 +106,7 @@ void chatting(){
 			/* Server socket */
 			if(incomming_socket == my_socket){
 				recvPacket(my_socket, CLIENT, packet);
-				client_parse_packet(packet, my_socket);
+				client_parse_packet(packet, my_socket);	/* located in packet.c */
 				smemset(packet, '\0', MAX_PACKET);
 
 			/* Stdin */
@@ -166,6 +166,7 @@ void parse_input(int len, char *input){
 		default:
 			break;
 	}
+
 	fflush(stdout);
 }
 

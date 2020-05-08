@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,6 +8,7 @@
 #include "headers/networks.h"
 #include "headers/table.h"
 #include "headers/packet.h"
+#include "headers/pollLib.h"
 
 void server_parse_packet(uint8_t *buff, int socket){
    uint8_t flag = get_type(buff);
@@ -51,8 +53,15 @@ void client_parse_packet(uint8_t *buff, int socket){
          printf("\n");
          exit(-1);
          break;
+      case 11:
+         parse_flag11(buff);
+         break;
       case 12:
-         //parse_flag12();
+         parse_flag12(buff);
+         break;
+      case 13:
+         parse_flag13();
+         break;
       default:
          printf("\nNot defined\n");
          print_buff(buff);
@@ -242,49 +251,32 @@ void parse_flag8(int socket){
 /* Send handles to client
  * Build and send flag 11, flag 12(s) and flag 13 */
 void parse_flag10(int socket){
+   struct packet_header flag13;
    uint8_t buff[MAX_PACKET] = "";
    char handle[MAX_HANDLE + 1] = "";
-   struct packet_header *header;
    uint32_t num_handles = get_num_elements();
+   uint16_t send_len;
    int i;
 
-   header = (struct packet_header *)buff;
-   build_flag11(buff);
-   sendPacket(socket, buff, ntohs(header->length));
+   send_len = build_flag11(buff);
+   sendPacket(socket, buff, send_len);
 
 
    for(i = 0; i < num_handles; i++){
       smemset(buff, '0', sizeof(buff));
       smemset(handle, '0', sizeof(handle));
       get_entry(i, handle);
-      build_flag12(buff, handle);
+      send_len = build_flag12(buff, handle);
+      sendPacket(socket, buff, send_len);
    }
 
-}
-
-
-void build_flag12(uint8_t *buff, char *handle){
-   struct packet_header *header;
-   uint8_t handle_len = strlen(handle);
-
-   header = (struct packet_header *)buff;
-
-   header->flag = 12;
-   header->length = htons(HEADER_LEN + sizeof(handle_len) + handle_len);
-   
-   put_data(buff + HEADER_LEN, handle);
-   print_buff(buff);
-}
-
-
-void parse_flag12(uint8_t *buff){
-   
-
+   flag13 = build_header(13);
+   sendPacket(socket, (uint8_t *)&flag13, HEADER_LEN);
 }
 
 
 /* Stick the number of handles onto a header */
-void build_flag11(uint8_t *buff){
+uint16_t build_flag11(uint8_t *buff){
    struct packet_header *header;
    uint32_t num_handles = 0;
 
@@ -295,7 +287,50 @@ void build_flag11(uint8_t *buff){
    header->flag = 11;
 
    smemcpy(buff + HEADER_LEN, &num_handles, sizeof(num_handles)); 
+   return(ntohs(header->length));
 }
+
+
+void parse_flag11(uint8_t *buff){
+   uint32_t *num_handles;
+
+   num_handles = (uint32_t *)((uintptr_t)buff + HEADER_LEN);
+   printf("\nNumber of clients: %u\n", ntohl(*num_handles));
+
+   /* Wait to get all handles before continuing anything */
+   removeFromPollSet(STDIN_FILENO);
+}
+
+
+uint16_t build_flag12(uint8_t *buff, char *handle){
+   struct packet_header *header;
+   uint8_t handle_len = strlen(handle);
+
+   header = (struct packet_header *)buff;
+
+   header->flag = 12;
+   header->length = htons(HEADER_LEN + sizeof(handle_len) + handle_len);
+   
+   put_data(buff + HEADER_LEN, handle);
+   return(ntohs(header->length));
+}
+
+
+void parse_flag12(uint8_t *buff){
+   char handle[MAX_HANDLE + 1] = "";
+
+   packet_get_data(buff + HEADER_LEN, handle);
+   printf("  %s\n", handle);
+}
+
+
+void parse_flag13(){
+   addToPollSet(STDIN_FILENO);
+   printf("$ ");
+   fflush(stdout);
+}
+
+
 
 
 /* Give a starting pointer, calculate data len using strlen

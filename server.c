@@ -86,7 +86,7 @@ void processSockets(int mainServerSocket){
 			}
 			
 			/* Parse the packet */
-			server_parse_packet(buff, socketToProcess);	
+			server_parse_packet(buff, socketToProcess);		/* located in packet.c */
 			memset(buff, '0', sizeof(buff));
 			socketToProcess = -1;
 
